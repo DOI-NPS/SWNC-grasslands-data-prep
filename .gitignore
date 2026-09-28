@@ -1,0 +1,37 @@
+# R Environment Variables
+.Renviron
+
+# History files
+.Rhistory
+.Rapp.history
+
+# Session Data files
+.RData
+
+# User-specific files
+.Ruserdata
+
+# Output files from reports
+*.html
+
+# Output files from R CMD build
+/*.tar.gz
+
+# Output files from R CMD check
+/*.Rcheck/
+
+# knitr and R markdown default cache directories
+*_cache/
+/cache/
+
+# Temporary files created by R markdown
+*.utf8.md
+*.knit.md
+
+# taxonomy tables
+*taxonomic_coverage.txt
+
+# geographic coverage
+*geographic_coverage.txt
+.Rproj.user
+.positai

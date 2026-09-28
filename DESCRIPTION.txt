@@ -1,0 +1,19 @@
+Package: IMD_template_repo
+Title: Minimal Required Contents for a DGEC Compliant Repository
+Version: 1.0.0
+Authors@R: c(
+    person(given="Cheryl", family="McIntyre", email="cheryl_mcintyre@nps.gov",
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-7554-7586")),
+    person(given="Amy", family="Luo", email="aluo@nps.gov",
+            role = c("aut", "cre"),
+            comment = c(ORCID = "0000-0002-9197-4673")),
+    person(given="Sydney", family="Hedberg",
+            role = c("aut"),
+            comment = c(ORCID = "0009-0002-7822-5552"))
+    )
+Description: This repository includes scripts for the QA/QC and data packaging for the National Park Service Southern Plains Network (SOPN) Grasslands Monitoring protocol.
+License: CC0 + file LICENSE
+Encoding: UTF-8
+URL: https://github.com/DOI-NPS/SWNC-grasslands-data-prep
+BugReports: https://github.com/DOI-NPS/SWNC-grasslands-data-prep/issues

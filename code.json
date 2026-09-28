@@ -1,0 +1,40 @@
+[
+  {
+    "name": "SWNC-grasslands-data-prep",
+    "organization": "NATIONAL PARK SERVICE",
+    "description": "This repository includes scripts for the QA/QC and data packaging for the National Park Service Southern Plains Network (SOPN) Grasslands Monitoring protocol.",
+    "version": "1.0.0",
+    "status": "ongoing development",
+    "permissions": {
+      "usageType": "openSource",
+      "licenses": [
+        {
+          "name": "Public Domain, CC0-1.0",
+          "URL": "https://github.com/DOI-NPS/SWNC-grasslands-data-prep"
+        }
+      ]
+    },
+    "homepageURL": "https://github.com/DOI-NPS/SWNC-grasslands-data-prep",
+    "downloadURL": "https://github.com/DOI-NPS/SWNC-grasslands-data-prep",
+    "disclaimerURL": "https://github.com/DOI-NPS/SWNC-grasslands-data-prep/LICENSE",
+    "repositoryURL": "https://github.com/DOI-NPS/SWNC-grasslands-data-prep",
+    "vcs": "git",
+    "laborHours": 1,
+    "tags": [
+      "NRSS",
+      "IMD",
+      "SWNC",
+      "grasslands"
+    ],
+    "languages": [
+      "R"
+    ],
+    "contact": {
+      "name": "Cheryl McIntyre",
+      "email": "cheryl_mcintyre@nps.gov"
+    },
+    "date": {
+      "metadataLastUpdated": "2026-09-28"
+    }
+  }
+]
