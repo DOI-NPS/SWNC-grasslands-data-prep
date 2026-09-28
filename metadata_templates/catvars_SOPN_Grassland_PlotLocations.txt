@@ -1,0 +1,18 @@
+attributeName	code	definition
+basisOfRecord	MachineObservation	An output of a machine observation process.
+coordinateAccuracy	High	Coordinate data collected with a Leica GG04 GPS receiver within submeter accuracy
+coordinateAccuracy	Medium	Coordinate data collected with a Garmin recreactional grade GPS unit
+geodeticDatum	EPSG:4326	WGS 84 / World Mercator
+monumentLocation	0P - Start	Monument at the origin of the transect at 0m
+monumentLocation	50P - End	Monument at the end of the transect at 50m
+type	Event	An action that occurs at some location during some time.
+unitCode	BEOL	Bent's Old Fort National Historic Site
+unitCode	CAVO	Capulin Volcano National Monument
+unitCode	CHIC	Chickasaw National Recreation Area
+unitCode	FOLS	Fort Larned National Historic Site
+unitCode	FOUN	Fort Union National Monument
+unitCode	LAMR	Lake Meredith National Recreation Area
+unitCode	LYJO	Lyndon B Johnson National Historical Park
+unitCode	PECO	Pecos National Historical Park
+unitCode	SAND	Sand Creek Massacre National Historic Site
+unitCode	WABA	Washita Battlefield National Historic Site

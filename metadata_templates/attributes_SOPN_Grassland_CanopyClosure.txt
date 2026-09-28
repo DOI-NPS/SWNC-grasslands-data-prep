@@ -1,0 +1,14 @@
+attributeName	attributeDefinition	class	unit	dateTimeFormatString	missingValueCode	missingValueCodeExplanation
+unitCode	National Park Service unit code	categorical				
+unitName	National Park Service unit name	character				
+locationID	Unique name for plot: unit code + plot name	character				
+eventDate	Date the plot sampling event began	Date		YYYY-MM-DD		
+tapeDistanceInMeters	Distance in meters from beginning of transect to sampling point	numeric	meter			
+tapeDistanceInMetersFlag	Acceptance rating for tape meter mark	categorical				
+direction	Cardinal direction faced while taking reading	categorical				
+directionFlag	Acceptance rating for direction	categorical				
+count	Number of intercepts recorded on densiometer	numeric	number		-1111	Data were not collected
+countCodeDescription	Description of missing value code found in the count column	character			NA	No code found in the count column
+countFlag	Acceptance rating for count	categorical				
+type	The nature or genre of the resource.	categorical				
+basisOfRecord	The specific nature of the data record.	categorical				

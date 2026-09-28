@@ -1,0 +1,6 @@
+attributeName	attributeDefinition	class	unit	dateTimeFormatString	missingValueCode	missingValueCodeExplanation
+standardOperatingProcedure	Title of Standard Operating Procedure (SOP)	character				
+sopNumber	Number of Standard Operating Procedure (SOP) in the SOPN Grasslands Protocol	numeric	dimensionless			
+versionNumber	The SOP version number	numeric	dimensionless			
+fieldYear	The first field year the SOP version was used in data collection. Grassland field seasons run from May through September.	Date		YYYY	NA	SOP was not implemented in field data collection.
+irmaReference	IRMA reference for the given SOP version	character				

@@ -1,0 +1,8 @@
+givenName	middleInitial	surName	organizationName	electronicMailAddress	userId	role	projectTitle	fundingAgency	fundingNumber
+Sydney	L	Hedberg	National Park Service	Sydney_Hedberg@partner.nps.gov	0009-0002-7822-5552	Creator			
+Merran	L	Owen	National Park Service	merran_owen@partner.nps.gov		Creator			
+Heidi		Sosinski	National Park Service	Heidi_Sosinski@nps.gov	0009-0003-6779-9283	Creator			
+Kristin	L	Vanderbilt	National Park Service	kristin_vanderbilt@nps.gov	0000-0003-1439-2204	Creator			
+Cheryl	L	McIntyre	National Park Service	cheryl_mcintyre@nps.gov		Creator			
+Melina	D	Kompella	National Park Service	melina_kompella@partner.nps.gov	0009-0000-3730-8082	Creator			
+Judd		Patterson	National Park Service	judd_patterson@nps.gov	0000-0002-0951-7917	Contact			

@@ -1,0 +1,9 @@
+attributeName	code	definition
+basisOfRecord	Event	An action that occurs at some location during some time.
+fireType	Prescribed Burn	Fire was a planned resource management action
+fireType	Wildfire	Fire originanated from an unplanned ignition source
+type	Event	An action that occurs at some location during some time.
+unitCode	BEOL	Bent's Old Fort National Historic Site
+unitCode	CHIC	Chickasaw National Recreation Area
+unitCode	LAMR	Lake Meredith National Recreation Area
+unitCode	WABA	Washita Battlefield National Historic Site

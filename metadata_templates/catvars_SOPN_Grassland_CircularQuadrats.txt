@@ -1,0 +1,54 @@
+attributeName	code	definition
+acceptedCodeFlag	A	Accepted
+acceptedCodeFlag	AE[S]	"Accepted after QC -  Plant species updated post-field, during data certification"
+acceptedCodeFlag	A[Q]	Accepted after QC - Data are of low quality and may be inaccurate; we recommend lumping to genus
+basisOfRecord	HumanObservation	An output of a human observation process.
+canopyLayer	Overhead	"Species presence or cover recorded for a tree or shrub overhanging the quadrat, but rooted at least halfway outside its boundaries"
+canopyLayer	Rooted	Species presence or cover recorded for any plant rooted at least halfway within the quadrat
+coverClass	1	1-10% Cover
+coverClass	2	11-20% Cover
+coverClass	3	21-30% Cover
+coverClass	4	31-60% Cover
+coverClass	5	61-100% Cover
+coverClassFlag	A	Accepted
+coverMetricType	coverClass	Cover amount was recorded as cover class
+coverMetricType	percentCover	Cover amount was recorded as percent cover
+coverMetricType	presenceAbsence	"No cover recorded, only presence/absence"
+flooding	FALSE	Disturbance is absent
+flooding	Unknown	"Disturbance is present, but which quadrats are affected is unknown"
+mowingSuit	FALSE	Disturbance is absent
+mowingSuit	TRUE	Disturbance is present
+nativity	Native	Plant species is naturally occuring to the region
+nativity	Non-Native	Plant species is not naturally occuring to the region and has been introduced
+nativity	Unknown	"The nativity of the plant is unknown, generally because it cannot be identified"
+other	FALSE	Disturbance is absent
+other	Unknown	"Disturbance is present, but which quadrats are affected is unknown"
+percentCoverFlag	A	Accepted
+percentCoverFlag	AE[MD]	Accepted after QC - Missing Data
+primaryLifeform	Forb/Herb	Vascular plant without significant woody tissue above or at the ground
+primaryLifeform	Graminoid	Grass or grass-like plant
+primaryLifeform	Shrub	"Perennial, multi-stemmed woody plant that is usually less than 4 to 5 meters (13 to 16 feet) in height"
+primaryLifeform	Subshrub	"Low-growing shrub usually under 0.5 m (1.5 feet) tall, never exceeding 1 meter (3 feet) tall at maturity"
+primaryLifeform	Succulent	"Plant that has thick, fleshy leaves, stems, or roots, enabling it to store water"
+primaryLifeform	Tree	"Perennial, woody plant with a single stem (trunk), normally greater than 4 to 5 meters (13 to 16 feet) in height"
+primaryLifeform	Vine	"Twining/climbing plant with relatively long stems, can be woody or herbaceous."
+quadNumberFlag	A	Accepted
+quadNumberFlag	A[I]	Accepted - Data is incomplete
+secondaryLifeform	Forb/Herb	Vascular plant without significant woody tissue above or at the ground
+secondaryLifeform	Shrub	"Perennial, multi-stemmed woody plant that is usually less than 4 to 5 meters (13 to 16 feet) in height"
+secondaryLifeform	Subshrub	"Low-growing shrub usually under 0.5 m (1.5 feet) tall, never exceeding 1 meter (3 feet) tall at maturity"
+secondaryLifeform	Tree	"Perennial, woody plant with a single stem (trunk), normally greater than 4 to 5 meters (13 to 16 feet) in height"
+secondaryLifeform	Vine	"Twining/climbing plant with relatively long stems, can be woody or herbaceous."
+soilScalp	FALSE	Disturbance is absent
+soilScalp	Unknown	"Disturbance is present, but which quadrats are affected is unknown"
+type	Event	An action that occurs at some location during some time.
+unitCode	BEOL	Bent's Old Fort National Historic Site
+unitCode	CAVO	Capulin Volcano National Monument
+unitCode	CHIC	Chickasaw National Recreation Area
+unitCode	FOLS	Fort Larned National Historic Site
+unitCode	FOUN	Fort Union National Monument
+unitCode	LAMR	Lake Meredith National Recreation Area
+unitCode	LYJO	Lyndon B Johnson National Historical Park
+unitCode	PECO	Pecos National Historical Park
+unitCode	SAND	Sand Creek Massacre National Historic Site
+unitCode	WABA	Washita Battlefield National Historic Site

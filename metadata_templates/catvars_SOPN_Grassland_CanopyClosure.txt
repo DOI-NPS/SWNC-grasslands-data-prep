@@ -1,0 +1,21 @@
+attributeName	code	definition
+basisOfRecord	HumanObservation	An output of a human observation process.
+countFlag	A	Accepted
+direction	East	Cover recorded facing east
+direction	North	Cover recorded facing north
+direction	South	Cover recorded facing south
+direction	West	Cover recorded facing west
+directionFlag	A	Accepted
+directionFlag	A[Q]	Accepted - Data are of low quality and may be inaccurate
+tapeDistanceInMetersFlag	A	Accepted
+type	Event	An action that occurs at some location during some time.
+unitCode	BEOL	Bent's Old Fort National Historic Site
+unitCode	CAVO	Capulin Volcano National Monument
+unitCode	CHIC	Chickasaw National Recreation Area
+unitCode	FOLS	Fort Larned National Historic Site
+unitCode	FOUN	Fort Union National Monument
+unitCode	LAMR	Lake Meredith National Recreation Area
+unitCode	LYJO	Lyndon B Johnson National Historical Park
+unitCode	PECO	Pecos National Historical Park
+unitCode	SAND	Sand Creek Massacre National Historic Site
+unitCode	WABA	Washita Battlefield National Historic Site

@@ -1,0 +1,25 @@
+attributeName	code	definition
+authority	ITIS	Integrated Taxonomic Information System (https://www.itis.gov/)
+basisOfRecord	Taxon	A group of organisms considered by taxonomists to form a homogeneous unit.
+duration	A/B	Plant may be an annual or biennial growth duration depending on location
+duration	A/P	Plant may be an annual or perennial growth duration depending on location
+duration	Annual	Plant completes their entire life cycle in one year
+duration	B/P	Plant may be an biennial or perennial growth duration depending on location
+duration	Biennial	Plant completes their entire life cycle over two years
+duration	Perennial	Plant lifecycle lasts more than two years
+nativity	Native	Plant species is naturally occuring to the region
+nativity	Non-Native	Plant species is not naturally occuring to the region and has been introduced
+nativity	Unknown	"Plant nativity is unknown, generally for genus codes that include both native and non-native species"
+primaryLifeform	Forb/Herb	Vascular plant without significant woody tissue above or at the ground
+primaryLifeform	Graminoid	Grass or grass-like plant
+primaryLifeform	Shrub	"Perennial, multi-stemmed woody plant that is usually less than 4 to 5 meters (13 to 16 feet) in height"
+primaryLifeform	Subshrub	"Low-growing shrub usually under 0.5 m (1.5 feet) tall, never exceeding 1 meter (3 feet) tall at maturity"
+primaryLifeform	Succulent	"Plant that has thick, fleshy leaves, stems, or roots, enabling it to store water"
+primaryLifeform	Tree	"Perennial, woody plant with a single stem (trunk), normally greater than 4 to 5 meters (13 to 16 feet) in height;"
+primaryLifeform	Vine	"Twining/climbing plant with relatively long stems, can be woody or herbaceous."
+secondaryLifeform	Forb/Herb	Vascular plant without significant woody tissue above or at the ground
+secondaryLifeform	Shrub	"Perennial, multi-stemmed woody plant that is usually less than 4 to 5 meters (13 to 16 feet) in height"
+secondaryLifeform	Subshrub	"Low-growing shrub usually under 0.5 m (1.5 feet) tall, never exceeding 1 meter (3 feet) tall at maturity"
+secondaryLifeform	Tree	"Perennial, woody plant with a single stem (trunk), normally greater than 4 to 5 meters (13 to 16 feet) in height;"
+secondaryLifeform	Vine	"Twining/climbing plant with relatively long stems, can be woody or herbaceous."
+type	Dataset	Data encoded in a defined structure.

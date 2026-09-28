@@ -1,0 +1,9 @@
+attributeName	attributeDefinition	class	unit	dateTimeFormatString	missingValueCode	missingValueCodeExplanation
+unitCode	National Park Service unit code	categorical				
+unitName	National Park Service unit name	character				
+locationID	Unique name for plot: unit code + plot name	character				
+eventDate	Date the plot sampling event began	Date		YYYY-MM-DD		
+stratification	"Stratum to which plot belongs, determined by SOPN"	categorical				
+vegetationType	"Vegetation community to which plot belongs, determined by park vegetation mapping units"	categorical				
+type	The nature or genre of the resource.	categorical				
+basisOfRecord	The specific nature of the data record.	categorical				

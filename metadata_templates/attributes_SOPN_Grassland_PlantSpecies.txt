@@ -1,0 +1,15 @@
+attributeName	attributeDefinition	class	unit	dateTimeFormatString	missingValueCode	missingValueCodeExplanation
+acceptedCode	"Six letter code for accepted plant species name, as well as soil substrate codes"	character				
+verbatimIdentification	"Translation of code for accepted plant species name, as well as soil substrate codes"	character				
+scientificName	Scientific name of species under ITIS	character			NA	No scientific name associated with cover type
+TSN	Taxonomic Serial Number (TSN) for species	numeric	dimensionless		-9999	No TSN associated with cover type
+taxonRank	The taxonomic rank of the most specific name in the scientificName column	character			NA	No scientific name associated with cover type
+commonName	Common name of species from USDA Plants Database	character			NA	No common name associated with cover type
+authority	Authority for plant species names	categorical			NA	Cover type was not resolved using any authority
+family	Family to which species belongs under ITIS	character			NA	No taxonomic family associated with cover type
+primaryLifeform	"Primary lifeform of species as designated by SOPN, determined by duration and growth habit (based on USDA Plants Database)"	categorical			NA	No primary lifeform associated with cover type
+secondaryLifeform	"Secondary lifeform of species as designated by SOPN, determined by duration and growth habit (based on USDA Plants Database)"	categorical			NA	No secondary lifeform associated with cover type
+nativity	Nativeness of species as designated by SOPN (based on USDA Plants Database)	categorical			NA	No nativity data found
+duration	Duration of species as designated by SOPN (based on USDA Plants Database)	categorical			NA	No species duration associated with cover type
+type	The nature or genre of the resource.	categorical				
+basisOfRecord	The specific nature of the data record.	categorical				

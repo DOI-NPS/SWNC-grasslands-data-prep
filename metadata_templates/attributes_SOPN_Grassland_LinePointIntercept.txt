@@ -1,0 +1,33 @@
+attributeName	attributeDefinition	class	unit	dateTimeFormatString	missingValueCode	missingValueCodeExplanation
+unitCode	National Park Service unit code	categorical				
+unitName	National Park Service unit name	character				
+locationID	Unique name for plot: unit code + plot name	character				
+eventDate	Date the plot sampling event began	Date		YYYY-MM-DD		
+tapeDistanceInMeters	Distance in meters from beginning of transect to sampling point	numeric	meter			
+tapeDistanceInMetersFlag	Acceptance rating for tape meter mark	categorical				
+rank	"Order of intercepts, from tallest to shortest"	numeric	dimensionless		-9999	Values are not applicable
+rankCodeDescription	Description of missing value code found in the rank column	character			NA	No code found in the rank column
+rankFlag	Acceptance rating for rank	categorical				
+heightInMeters	Height of tallest living shrub or herbaceous plant	numeric	meter			
+heightCodeDescription	Description of missing value code found in the heightInMeters column	character			NA	No code found in the heightInMeters column
+heightInMetersFlag	Acceptance rating for height	categorical				
+acceptedCode	"Six letter code for accepted plant species name, as well as soil substrate codes"	character				
+acceptedCodeFlag	Acceptance rating for accepted species code	categorical				
+verbatimIdentification	"Translation of code for accepted plant species name, as well as soil substrate codes"	character				
+scientificName	Scientific name of species under ITIS	character			NA	No scientific name associated with cover type
+TSN	Taxonomic Serial Number (TSN) for species	numeric	dimensionless		-9999	No TSN associated with cover type
+taxonRank	The taxonomic rank of the most specific name in the scientificName column	character			NA	No scientific name associated with cover type
+primaryLifeform	"Primary lifeform of species as designated by SOPN, determined by duration and growth habit (based on USDA Plants Database)"	categorical			NA	No primary lifeform associated with cover type
+secondaryLifeform	"Secondary lifeform of species as designated by SOPN, determined by duration and growth habit (based on USDA Plants Database)"	categorical			NA	No secondary lifeform associated with cover type
+nativity	Nativeness of species as designated by SOPN (based on USDA Plants Database). Nativity data is customized to the specific plot for instances where a species has been lumped to genus but nativity is known. 	categorical			NA	No nativity information associated with cover type
+canopyLayer	Canopy layer the intercepted plant or substrate belongs to	categorical				
+reEstab0P	"Origin rebar monument could not be found and was reestablishment, causing a change in the exact position"	categorical				
+reEstab50P	"Endpoint rebar monument could not be found and was reestablishment, causing a change in the exact position"	categorical				
+reEstabNail	"Nails along transect could not be found and were reestablishment, causing a change in the exact position of the transect line"	categorical				
+mowingSuit	Disturbance to vegetation  presence and cover due to mowing directly before the sampling event; plants still able to be identified suitably	categorical				
+flooding	Disturbance to vegetation presence and cover due to flooding at or directly before the sampling event	categorical				
+soilScalp	Disturbance to vegetation presence and cover and soil due to mowing and scalping of the soil	categorical				
+ORV	Disturbance to vegetation presence and cover due to ORV trail	categorical				
+other	Disturbance to vegetation presence and cover due to an uncommon or minor event documented in plot notes	categorical				
+type	The nature or genre of the resource.	categorical				
+basisOfRecord	The specific nature of the data record.	categorical				

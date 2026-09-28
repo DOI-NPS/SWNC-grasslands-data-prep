@@ -1,0 +1,11 @@
+keyword	keywordThesaurus
+grasslands	LTER Controlled Vocabulary
+land cover	LTER Controlled Vocabulary
+plant cover	LTER Controlled Vocabulary
+substrates	LTER Controlled Vocabulary
+wildfires	LTER Controlled Vocabulary
+fire management	LTER Controlled Vocabulary
+transects	LTER Controlled Vocabulary
+SOPN	
+Biological Integrity | Focal Species or Communities | Grassland/Herbaceous Communities	Ecological Framework
+Landscapes | Fire and Fuel Dynamics | Fire and Fuel Dynamics	Ecological Framework

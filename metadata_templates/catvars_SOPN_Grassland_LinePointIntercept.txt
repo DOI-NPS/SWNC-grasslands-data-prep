@@ -1,0 +1,67 @@
+attributeName	code	definition
+ORV	FALSE	Disturbance is absent
+ORV	TRUE	Disturbance is present
+acceptedCodeFlag	A	Accepted
+acceptedCodeFlag	AE[MD]	Accepted after QC - Missing Data
+acceptedCodeFlag	AE[S]	Accepted after QC - plant species updated during data cert
+acceptedCodeFlag	A[Q]	Accepted - Quality of plant identification at issue; we recommend lumping to genus
+acceptedCodeFlag	R[S]	Rejected - Data rejected based on the plant species
+basisOfRecord	HumanObservation	An output of a human observation process.
+canopyLayer	Shrub/Herb	"The intercepted plant is a shrub, subshrub, vine, graminoid or forb/herb, or if a tree, under 2 m tall in height"
+canopyLayer	Soil Substrate	The substrate intercepted at the soil surface
+canopyLayer	Tree	The intercepted plant is a tree over 2 m tall
+flooding	FALSE	Disturbance is absent
+flooding	TRUE	Disturbance is present
+heightInMetersFlag	A	Accepted
+heightInMetersFlag	AE[MD]	Accepted after QC - Missing Data
+heightInMetersFlag	R[MD]	Rejected - Missing Data
+heightInMetersFlag	R[O]	Rejected - Outside of range
+heightInMetersFlag	R[Q]	Rejected - Quality of plant identification at issue; we recommend lumping to genus
+mowingSuit	FALSE	Disturbance is absent
+mowingSuit	TRUE	Disturbance is present
+mowingSuit	Unknown	"Disturbance is present, but its location along the transect is unknown"
+nativity	Native	Plant species is naturally occuring to the region
+nativity	Non-Native	Plant species is not naturally occuring to the region and has been introduced
+nativity	Unknown	"The nativity of the plant is unknown, generally because it cannot be identified"
+other	FALSE	Disturbance is absent
+other	TRUE	Disturbance is present
+other	Unknown	"Disturbance is present, but its location along the transect is unknown"
+primaryLifeform	Forb/Herb	Vascular plant without significant woody tissue above or at the ground
+primaryLifeform	Graminoid	Grass or grass-like plant
+primaryLifeform	Shrub	"Perennial, multi-stemmed woody plant that is usually less than 4 to 5 meters (13 to 16 feet) in height"
+primaryLifeform	Subshrub	"Low-growing shrub usually under 0.5 m (1.5 feet) tall, never exceeding 1 meter (3 feet) tall at maturity"
+primaryLifeform	Succulent	"Plant that has thick, fleshy leaves, stems, or roots, enabling it to store water"
+primaryLifeform	Tree	"Perennial, woody plant with a single stem (trunk), normally greater than 4 to 5 meters (13 to 16 feet) in height;"
+primaryLifeform	Vine	"Twining/climbing plant with relatively long stems, can be woody or herbaceous."
+rankFlag	A	Accepted
+rankFlag	AE	Accepted after QC
+rankFlag	AE[D]	Accepted after QC - Duplicate data
+rankFlag	R[D]	Rejected - Duplicate data
+reEstab0P	FALSE	Original origin point rebar remains intact
+reEstab0P	TRUE	"Rebar monument at transect origin point was reestablished, indicating a change in the exact position"
+reEstab50P	FALSE	Original end point rebar remains intact
+reEstab50P	TRUE	"Rebar monument at transect end point was reestablished, indicating a change in the exact position"
+reEstabNail	FALSE	Original nails along transect remain intact
+reEstabNail	TRUE	"Nails along transect were reestablished, indicating a change in the exact position"
+secondaryLifeform	Forb/Herb	Vascular plant without significant woody tissue above or at the ground
+secondaryLifeform	Shrub	"Perennial, multi-stemmed woody plant that is usually less than 4 to 5 meters (13 to 16 feet) in height"
+secondaryLifeform	Subshrub	"Low-growing shrub usually under 0.5 m (1.5 feet) tall, never exceeding 1 meter (3 feet) tall at maturity"
+secondaryLifeform	Tree	"Perennial, woody plant with a single stem (trunk), normally greater than 4 to 5 meters (13 to 16 feet) in height;"
+secondaryLifeform	Vine	"Twining/climbing plant with relatively long stems, can be woody or herbaceous."
+soilScalp	FALSE	Disturbance is absent
+soilScalp	Unknown	"Disturbance is present, but its location along the transect is unknown"
+tapeDistanceInMetersFlag	A	Accepted
+tapeDistanceInMetersFlag	A[I]	Accepted - Data is incomplete
+tapeDistanceInMetersFlag	R[D]	Rejected - Duplicate data
+tapeDistanceInMetersFlag	R[E]	Rejected -  data was collected at an incorrect tape meter mark
+type	Event	An action that occurs at some location during some time.
+unitCode	BEOL	Bent's Old Fort National Historic Site
+unitCode	CAVO	Capulin Volcano National Monument
+unitCode	CHIC	Chickasaw National Recreation Area
+unitCode	FOLS	Fort Larned National Historic Site
+unitCode	FOUN	Fort Union National Monument
+unitCode	LAMR	Lake Meredith National Recreation Area
+unitCode	LYJO	Lyndon B Johnson National Historical Park
+unitCode	PECO	Pecos National Historical Park
+unitCode	SAND	Sand Creek Massacre National Historic Site
+unitCode	WABA	Washita Battlefield National Historic Site

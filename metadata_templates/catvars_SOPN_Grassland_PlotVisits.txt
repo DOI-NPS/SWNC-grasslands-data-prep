@@ -1,0 +1,53 @@
+attributeName	code	definition
+basisOfRecord	Event	An action that occurs at some location during some time.
+stratification	Bottomland	Low-lying grassland often subject to flooding 
+stratification	Cottonwood	Cottonwood galleries with a grassy understory
+stratification	Disturbed	Degraded grassland with an abundance of invasive plant species
+stratification	Disturbed Field	Degraded grassland that was formerly agricultural or pastoral with an abundance of invasive plant species
+stratification	Honey Mesquite	Upland grassland with notable honey mesquite encroachment
+stratification	Pinyon-Juniper Savannah	"Pinyon-Juniper woodland with an open, grassy understory"
+stratification	Prairie Dog Town	Grassland that supports an active prairie dog town
+stratification	Restoration	Grassland that has undergone or is currently undergoing restoration to native prairie species
+stratification	Salt Meadow	"Grassland with an influential, saline water table"
+stratification	Sand Sage	Sand sage shrubland co-dominated by grasses
+stratification	Shortgrass Steppe	Semi-arid grassland dominated by shortgrass species
+stratification	Upland	Grasslands above the floodzone
+type	Event	An action that occurs at some location during some time.
+unitCode	BEOL	Bent's Old Fort National Historic Site
+unitCode	CAVO	Capulin Volcano National Monument
+unitCode	CHIC	Chickasaw National Recreation Area
+unitCode	FOLS	Fort Larned National Historic Site
+unitCode	FOUN	Fort Union National Monument
+unitCode	LAMR	Lake Meredith National Recreation Area
+unitCode	LYJO	Lyndon B Johnson National Historical Park
+unitCode	PECO	Pecos National Historical Park
+unitCode	SAND	Sand Creek Massacre National Historic Site
+unitCode	WABA	Washita Battlefield National Historic Site
+vegetationType	Artemisia filifolia/Andropogon hallii Shrubland	"See vegetation map unit for SAND (Fink et al. 2007,  https://irma.nps.gov/DataStore/Reference/Profile/2168843)"
+vegetationType	"Artemisia filifolia/Bouteloua (curtipendula, gracilis) Shrubland"	"See vegetation map unit for BEOL (Stevens et al. 2007, https://irma.nps.gov/DataStore/Reference/Profile/651193) and SAND (Fink et al. 2007,  https://irma.nps.gov/DataStore/Reference/Profile/2168843)"
+vegetationType	Big Bluestem - Yellow Indiangrass Western Great Plains Herbaceous Vegetation	"See vegetation map unit for WABA (Cogan 2007,  https://irma.nps.gov/DataStore/Reference/Profile/2167350)"
+vegetationType	Blue Grama - Sideoats Grama Herbaceous Vegetation	"See vegetation map unit for WABA (Cogan 2007,  https://irma.nps.gov/DataStore/Reference/Profile/2167350)"
+vegetationType	Blue Grama-Buffalograss Herbaceous Vegetation	"See vegetation map unit for LAMR (Fenton et al. 2007, https://irma.nps.gov/DataStore/Reference/Profile/2166808)"
+vegetationType	Bouteloua gracilis - Buchloe dactyloides Herbaceous Vegetation	"See vegetation map unit for SAND (Fink et al. 2007,  https://irma.nps.gov/DataStore/Reference/Profile/2168843)"
+vegetationType	Cheatgrass Semi-Natural Herbaceous Alliance	"See vegetation map unit for WABA (Cogan 2007,  https://irma.nps.gov/DataStore/Reference/Profile/2167350)"
+vegetationType	Cottonwood/Mesic Grass Complex	"See vegetation map unit for LAMR (Fenton et al. 2007, https://irma.nps.gov/DataStore/Reference/Profile/2166808)"
+vegetationType	Disturbed Forb/Grasslands	"See vegetation map unit for CHIC (Salas et al. 2010, https://irma.nps.gov/DataStore/Reference/Profile/663986)"
+vegetationType	Great Plains Shortgrass Prairie	"See vegetation map unit for FOUN (Muldavin et al. 2004,  https://irma.nps.gov/DataStore/Reference/Profile/572280) and PECO (Muldavin et al. 2012, https://irma.nps.gov/DataStore/Reference/Profile/2187389)"
+vegetationType	Honey Mesquite Shrubland Complex	"See vegetation map unit for LAMR (Fenton et al. 2007, https://irma.nps.gov/DataStore/Reference/Profile/2166808)"
+vegetationType	Little Bluestem - Sideoats Grama Western Great Plains Herbaceous Vegetation	"See vegetation map unit for WABA (Cogan 2007,  https://irma.nps.gov/DataStore/Reference/Profile/2167350)"
+vegetationType	Perennial Bottomland Grassland Complex	"See vegetation map unit for LAMR (Fenton et al. 2007, https://irma.nps.gov/DataStore/Reference/Profile/2166808)"
+vegetationType	Perennial Bottomland/Upper Terrace/Valley Floor HV Complex	"See vegetation map unit for LAMR (Fenton et al. 2007, https://irma.nps.gov/DataStore/Reference/Profile/2166808)"
+vegetationType	Pinyon-Juniper	"See vegetation map unit for CAVO (Muldavin et al. 2011, https://irma.nps.gov/DataStore/Reference/Profile/2190588)"
+vegetationType	Planted Semi-Natural Restored Grassland Prairie	"See vegetation map unit for FOLS (Cogan et al. 2007, https://irma.nps.gov/DataStore/Reference/Profile/661586)"
+vegetationType	Populus deltoides Temporarily Flooded Woodland Alliance	"See vegetation map unit for BEOL (Stevens et al. 2007, https://irma.nps.gov/DataStore/Reference/Profile/651193)"
+vegetationType	Populus deltoides/Distichlis spicata Woodland	"See vegetation map unit for BEOL (Stevens et al. 2007, https://irma.nps.gov/DataStore/Reference/Profile/651193)"
+vegetationType	Populus deltoides/Pascopyrum smithii - Panicum virgatum Woodland	"See vegetation map unit for SAND (Fink et al. 2007,  https://irma.nps.gov/DataStore/Reference/Profile/2168843)"
+vegetationType	Prairie Dog Town Grassland Complex	"See vegetation map unit for FOLS (Cogan et al. 2007, https://irma.nps.gov/DataStore/Reference/Profile/661586) and BEOL (Stevens et al. 2007, https://irma.nps.gov/DataStore/Reference/Profile/651193)"
+vegetationType	Reclaimed Agricultural Land	"See vegetation map unit for BEOL (Stevens et al. 2007, https://irma.nps.gov/DataStore/Reference/Profile/651193) and SAND (Fink et al. 2007,  https://irma.nps.gov/DataStore/Reference/Profile/2168843)"
+vegetationType	Restoration Grassland	"See vegetation map unit for LYJO (Cogan 2007, https://irma.nps.gov/DataStore/Reference/Profile/661587)"
+vegetationType	Sand Bluestem - Big Sandreed Herbaceous Vegetation	"See vegetation map unit for WABA (Cogan 2007,  https://irma.nps.gov/DataStore/Reference/Profile/2167350)"
+vegetationType	"Sand Sagebrush/(Sideoats Grama, Hairy Grama) Shrubland"	"See vegetation map unit for LAMR (Fenton et al. 2007, https://irma.nps.gov/DataStore/Reference/Profile/2166808)"
+vegetationType	Shortgrass Steppe	"See vegetation map unit for CAVO (Muldavin et al. 2011, https://irma.nps.gov/DataStore/Reference/Profile/2190588)"
+vegetationType	Sporobolus airoides-Distichlis spicata Herbaceous Vegetation	"See vegetation map unit for BEOL (Stevens et al. 2007, https://irma.nps.gov/DataStore/Reference/Profile/651193) and SAND (Fink et al. 2007,  https://irma.nps.gov/DataStore/Reference/Profile/2168843)"
+vegetationType	Sumpweed - (Cockleburr) Temporarily Flooded Herbaceous Vegetation	"See vegetation map unit for WABA (Cogan 2007,  https://irma.nps.gov/DataStore/Reference/Profile/2167350)"
+vegetationType	Upland Forb/Grasslands	"See vegetation map unit for CHIC (Salas et al. 2010, https://irma.nps.gov/DataStore/Reference/Profile/663986)"

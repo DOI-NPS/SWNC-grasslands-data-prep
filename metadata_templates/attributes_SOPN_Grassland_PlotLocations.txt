@@ -1,0 +1,11 @@
+attributeName	attributeDefinition	class	unit	dateTimeFormatString	missingValueCode	missingValueCodeExplanation
+unitCode	National Park Service unit code	categorical				
+unitName	National Park Service unit name	character				
+locationID	Unique name for plot: unit code + plot name	character				
+monumentLocation	Location of permanent plot monument	categorical				
+decimalLatitude	"The geographic latitude (in decimal degrees, using the spatial reference system given in dwc:geodeticDatum) of the geographic center of a dcterms:LocationID."	numeric	degree			
+decimalLongitude	"The geographic longitude (in decimal degrees, using the spatial reference system given in dwc:geodeticDatum) of the geographic center of a dcterms:LocationID."	numeric	degree			
+geodeticDatum	"The ellipsoid, geodetic datum, or spatial reference system (SRS) upon which the geographic coordinates given in dwc:decimalLatitude and dwc:decimalLongitude are based."	categorical				
+coordinateAccuracy	Accuracy level of latitude and longitude coordinate data	categorical				
+type	The nature or genre of the resource.	categorical				
+basisOfRecord	The specific nature of the data record.	categorical				

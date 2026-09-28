@@ -1,0 +1,1219 @@
+---
+title: "Data Packaging for Grasslands Vegetation"
+format: html
+---
+
+# About this Script
+
+This is an R Markdown document to document the publication of SOPN grasslands data in preparation for analysis. This code generates the flat files for the NPS SOPN Grassland Protocol data package. The Grassland Protocol conducts long-term vegetation monitoring in ten Southern Plains Network parks: Bent’s Old Fort National Historic Site, Capulin Volcano National Monument, Chickasaw National Recreation Area, Fort Larned National Historical Site, Fort Union National Monument, Lake Meredith National Recreation Area, Lyndon B. Johnson National Historical Park, Pecos National Historical Park, Sand Creek Massacre National Historic Site and Washita Battlefield National Historic Site. The target population is the grassland communities of each park, defined as areas with greater than 60% graminoid cover, or areas managed with the intention of achieving 60% or greater graminoid cover. We have also placed plots in vegetation communities of special concern to specific parks, such as the cottonwood galleries at BEOL, LAMR, and SAND.  The sampling design is a stratified, random sample. Plots were stratified by vegetation type, using park vegetation maps, or, for select parks, strata were defined by management history. The sampling unit is an approximately 1-acre sized, oval plot, with a 50 m transect running down the middle. The current plot count is 120, spread out over 10 parks. Plots are visited every two out of every three years.
+
+Field data collection methods are detailed in the Grassland monitoring protocol for the Southern Plains I&M Network and Fire Group: Narrative Version 1.00, a written description of the study proposal and methodology, as well as a description of the parks and ecosystems included in the study population (https://irma.nps.gov/DataStore/Reference/Profile/2248040). The field methods are described in the Grassland Monitoring Protocol and Standard Operating Procedures for the Southern Plains I&M Network and Fire Group (https://irma.nps.gov/DataStore/Reference/Profile/2218674). The study proposal and field methods have since been extensively updated, with the current field methods described in field SOP packages for 2022, 2023 and 2024 (currently unpublished). Updated methodology can also be found in the Grasslands 2022-24 data package description on DataStore.
+
+# Setup
+
+IMPORTANT NOTE: data tables must be exported as .txt files from the Access database before you run this script. 
+
+Values in .Renviron you may need to update:
+
+- start_year: the beginning year of data in your analysis (or data package)
+- end_year: the last year of data in your analysis (or data package)
+- dbExports: where the exports from the Grasslands database are stored
+- dbExportDate: the date of the dbExports from the Grasslands database, which should be at the - end of each file name. Format as YYYYMMDD, e.g., 20230802.
+- EXPORT_INTERNAL_DATAPACKAGE: file path where to save the data package files, if internal
+- EXPORT_PUBLIC_DATAPACKAGE: file path where to save the data package files, if public
+- package_version: whether data package is public or internal
+
+```{r set-environment, eval=F}
+# If you modify the .Renviron file while the session is running you can reload the environment use these commands:
+
+readRenviron(".Renviron")
+source(".Rprofile")
+```
+
+```{r load-libraries, warning=F, message=F}
+library(tidyverse)
+library(sf)
+library(NPSdataverse)
+```
+
+## Case editing function
+
+Function to convert a string or a character vector to camel case except for the letters "ID", "UID", and "TSN"
+
+```{r camel-case-function}
+to_camel_case_except_ID <- function(vector) {
+  cc_vec <- str_to_camel(vector)
+  cc_vec <- str_replace(cc_vec, "Id", "ID")
+  cc_vec <- str_replace(cc_vec, "uid", "UID")
+  cc_vec <- str_replace(cc_vec, "tsn", "TSN")
+  return(cc_vec)
+}
+```
+
+## Read in data
+
+These .txt files are exports from the Access database that are being read into this environment: 
+
+- mtbl_Plants (main plants table): information about each species, such as nativity, lifeform, and accepted name
+- mtbl_Substrate (main substrate table): information about each substrate category (stored in data entry front-end)
+- tbl_Unit_Codes (unit codes within SWNC): code, name, park
+- tbl_Parks (park codes within SWNC): code, name
+- tbl_Locations (monitoring sites) unit code, stratum, name, site metadata
+- tbl_Events (monitoring events/visits): date of each visit/sampling occasion
+- tbl_Point_Line_Veg (veg height at each line-point intercept): meter mark, height
+- tbl_Point_Line_Veg (line-point intercept data): veg code
+- tbl_Point_Line_Tree (line-point intercept data): tree code
+- tbl_Rapid_Point (circular quadrat data, starting in 2016): veg code, cover class, percent cover
+- tlu_Enumerations: enumerations lookup table
+- tlu_Physical_Characteristics: physical characteristics lookup table
+- tbl_Densiometer: densiometer data
+- tbl_Disturbance: disturbance events
+- tbl_Fire_History: history of fire and fire type (prescribed vs wildfire)
+- xref_Fire_Locations: locations for fire events
+- tbl_Divided_Quad: table to join fire ID with location IDs
+
+```{r read-data, echo=F, message=F}
+mtbl_Plants <- read.csv(paste0(dbExports,"mtbl_Plants_",dbExportDate,".txt"))
+
+mtbl_Substrate <-  read.csv(paste0(dbExports,"mtbl_Substrate_",dbExportDate,".txt"))
+
+tbl_Unit_Codes <- read.csv(paste0(dbExports,"tbl_Unit_Codes_",dbExportDate,".txt"))
+
+tbl_Parks <- read.csv(paste0(dbExports,"tbl_Parks_",dbExportDate,".txt"))
+
+tbl_Locations <- read.csv(paste0(dbExports,"tbl_Locations_",dbExportDate,".txt"))
+
+tbl_Events <- read.csv(paste0(dbExports,"tbl_Events_",dbExportDate,".txt"))
+
+tbl_Point_Line_Measure <- read.csv(paste0(dbExports,"tbl_Point_Line_Measure_",dbExportDate,".txt"))
+
+tbl_Point_Line_Veg <- read.csv(paste0(dbExports,"tbl_Point_Line_Veg_",dbExportDate,".txt"))
+
+tbl_Point_Line_Tree <- read.csv(paste0(dbExports,"tbl_Point_Line_Tree_",dbExportDate,".txt"))
+
+tbl_Rapid_Point <- read.csv(paste0(dbExports,"tbl_Rapid_Point_",dbExportDate,".txt"))
+
+tlu_Enumerations <- read.csv(paste0(dbExports,"tlu_Enumerations_",dbExportDate,".txt"))
+
+tlu_Physical_Characteristics <- read.csv(paste0(dbExports,"tlu_Physical_Characteristics_",dbExportDate,".txt"))
+
+tbl_Densiometer <- read.csv(paste0(dbExports,"tbl_Densiometer_",dbExportDate,".txt"))
+
+tbl_Disturbance <- read.csv(paste0(dbExports,"tbl_Disturbance_",dbExportDate,".txt"))
+
+tbl_Fire_History <- read.csv(paste0(dbExports,"tbl_Fire_History_",dbExportDate,".txt"))
+
+xref_Fire_Locations <- read.csv(paste0(dbExports,"xref_Fire_Locations_",dbExportDate,".txt"))
+
+tbl_Divided_Quad <- read.csv(paste0(dbExports,"tbl_Divided_Quad_",dbExportDate,".txt"))
+```
+
+## Read in post-field edits
+
+Post field edits are recorded by Merran (protocol lead) in a separate Excel file for any
+changes or lumping of species that won't be made directly in the database, but
+we want these changes reflected in the flatfile exports. We will read in this
+file separately. This code reads in this .csv file from the same folder where
+the database exports were saved.
+
+```{r post-field edits}
+postfieldedits <- paste0(dbExports, "Post_Field_Edits.csv") %>%
+  read.csv %>%
+  mutate(Nativity = na_if(Nativity, ""))
+```
+
+# Create data package flat files
+## Events data
+
+This code joins the locations and events tables to create an events data frame with relevant columns. This code filters the events based on several criteria: 1) includes only SOPN ownership, 2) includes only certified data, 3) includes a rotation status of either active or intermittent, 4) excludes restoration location types, and 5) filters the data between the start year and end year (based on the variables defined in the .Renviron file)
+
+```{r events-data, message=F}
+AllEvents <- tbl_Locations %>% 
+  select(Location_ID, Unit_Code, Loc_Name, Std_Loc_Name, Strata, Azimuth,
+         Declination, Elevation, Loc_Type, Wildfire_History, Vegetation_Type,
+         Ecological_Site, Stratification, Mngt_Unit, Mngt_Unit_Name, Reporting,
+         Rotation_Status) %>%
+  filter(Loc_Type != "Restoration"
+         & Rotation_Status %in% c("Active", "Intermittent")) %>%
+  left_join(tbl_Events %>% select(Location_ID, Event_ID, Start_Date,
+                                  Event_Activity, Certified, Data_Ownership),
+            by = "Location_ID") %>%
+  mutate(Start_Date = as.Date(Start_Date, format="%m/%d/%Y"),
+         Year= year(Start_Date)) %>%
+  filter(Data_Ownership == "SOPN"
+         & Year %in% start_year:end_year
+         & (Certified == "1" | year(Start_Date) == 2026))
+```
+
+## Line-point intercepts
+This code joins numerous tables together to start the line-point intercept table. The main substrate table is joined to differentiate between vegetation and substrate records for each point. Each location has a single line-point intercept transect so the transects are not numbered in the database. Therefore, we add a transect number (1). 
+
+```{r start-lpi-table, message=F}
+lpi <- AllEvents %>%
+  select(Location_ID, Event_ID, Unit_Code, Loc_Name,
+                Std_Loc_Name, Start_Date, Year) %>%
+  left_join(tbl_Point_Line_Measure, by = "Event_ID") %>%
+  left_join(tbl_Point_Line_Veg, by = "Point_Line_ID") %>%
+  select(-c(Location_ID, Event_ID, Point_Line_ID, Point_Veg_ID)) %>%
+  arrange(Unit_Code, Loc_Name, Start_Date, Tape_m, Rank) %>%
+  drop_na(Tape_m) %>%
+  distinct %>%
+  mutate(Transect = replace_na(Transect,replace = 1)) %>%
+  group_by(Unit_Code, Loc_Name, Start_Date, Transect, Tape_m, Canopy) %>%
+  mutate(maxRank = max(Rank)) %>%
+  ungroup() %>%
+  left_join(mtbl_Substrate %>% select(Veg_Code, Scientific_Name),
+            by = c("VegCode" = "Veg_Code")) %>%
+  mutate(VegSub = ifelse(is.na(Scientific_Name), "Vegetation", "Substrate")) %>%
+  select(-Scientific_Name)
+```
+
+### Add post-field edits
+
+The following code makes the necessary changes to the line-point intercept dataframe based on Merran's (protocol lead) Post Field Edits. In most cases, these are changes in VegCode field (often updating unknowns or lumping species that are commonly confused or often misidentified), and in other cases, these changes are updates to Nativity for genera that can be both native and non-native. VegCode changes are made now, and Nativity changes are stored in an additional column (called UpdatedNativity) to later add once the Nativity column is joined from mtbl_Plants. Any VegCode changes are reflected as AE[S] (Accepted after QC - plant species updated during data cert) in the Flag column.
+
+```{r lpi-post-field-edits, message=F}
+allplots <- postfieldedits %>%
+  filter(Loc_Name == "ALL") %>% # Filter for edits that apply to all plot locations for a given park unit & year
+  select(-c(Loc_Name, Date_Flagged)) %>%
+  rename(VegCode = Field_Species_Code) %>%
+  mutate(UpdatedNativity = NA) # Create an UpdatedNativity column to record any Nativity values that later need to be updated from mtbl_Plants
+
+specificplots <- postfieldedits %>%
+  filter(Loc_Name != "ALL") %>% # Filter for edits that only apply to a specific plot location for a given park unit & year
+  select(-Date_Flagged) %>%
+  rename(VegCode = Field_Species_Code)
+
+lpi %<>%
+  left_join(allplots, by = c("Year", "Unit_Code", "VegCode")) %>%
+  mutate(VegCode_Flag = if_else(!is.na(Cert_Species_Code)
+                                & Cert_Species_Code != VegCode,
+                                "AE[S]", VegCode_Flag),
+         VegCode = if_else(!is.na(Cert_Species_Code), Cert_Species_Code, VegCode),
+         UpdatedNativity = if_else(!is.na(Nativity), Nativity, UpdatedNativity)) %>%
+  select(-c(Cert_Species_Code, Nativity, Comments, Notes.x, Notes.y)) %>%
+  
+  left_join(specificplots, by = c("Year", "Unit_Code", "Loc_Name", "VegCode")) %>%
+  mutate(VegCode_Flag = if_else(!is.na(Cert_Species_Code)
+                                & Cert_Species_Code != VegCode,
+                                "AE[S]", VegCode_Flag),
+         VegCode = if_else(!is.na(Cert_Species_Code), Cert_Species_Code, VegCode),
+         UpdatedNativity = if_else(!is.na(Nativity), Nativity, UpdatedNativity)) %>%
+  select(-c(Cert_Species_Code, Nativity, Comments))
+```
+
+### Add layer descriptions
+Add a canopy layer description to differentiate soil substrate, shrub/herb, and tree. 
+
+```{r lpi-layer-description, message=F}
+lpi %<>% 
+  as_tibble %>%
+  mutate(Canopy_Layer = case_when(
+    VegSub == "Vegetation" ~ "Shrub/Herb",
+    VegSub == "Substrate" ~ "Soil Substrate",
+    .default = ""))
+```
+
+### Add tree canopy
+The tree cover (canopy) data are stored in a different table from the rest of the line-point intercept data. The code below joins numerous tables to generate the tree intercepts and then appends it to the lpi dataframe.
+
+```{r lpi-tree-canopy, message=F}
+trees <- AllEvents %>%
+  select(Location_ID, Event_ID, Unit_Code, Loc_Name, Std_Loc_Name, Start_Date, Year) %>%
+  left_join(tbl_Point_Line_Measure, by = "Event_ID") %>%
+  left_join(tbl_Point_Line_Tree %>% select(-Notes), by = "Point_Line_ID") %>%
+  drop_na(VegCode) %>%
+  select(-c(Location_ID, Event_ID, Point_Line_ID, Tree_Veg_ID, AboveTopHit, BelowTopHit, Notes)) %>%
+  arrange(Unit_Code, Loc_Name, Start_Date, Tape_m) %>%
+  drop_na(Tape_m) %>%
+  distinct %>%
+  data.frame(., Rank = -9999, Canopy = 1, Dead = NA, Rank_Flag = "A",
+             maxRank = NA, Canopy_Layer = "Tree", VegSub = "Vegetation") %>% 
+  left_join(mtbl_Plants %>% select(Veg_Code, Nativity), by = c("VegCode" = "Veg_Code")) %>%
+  data.frame(., UpdatedNativity = NA) %>%
+  select(any_of(names(lpi)))
+
+lpi <- rbind(lpi,trees)
+```
+
+### Add edits to accepted code flag columns
+
+```{r lpi-accepted-code-flags, message=F}
+lpi %<>%
+  left_join(mtbl_Plants %>% select(Veg_Code, Accepted_Code), # convert all synonyms to their accepted name, according to mtbl_Plants 
+                 by = c("VegCode" = "Veg_Code")) %>%
+  mutate(Accepted_Code = case_when(VegCode == "NP" ~ "NP",
+                                   VegSub %in% c("Substrate", NA) ~ VegCode,
+                                   .default = Accepted_Code)) %>%
+  filter(Unit_Code != "ALFL") %>%
+  mutate(across(c(Tape_m_Flag, Height_m_Flag, VegCode_Flag, Rank_Flag), # update all blank Flag rows to have an accepted code (A)
+                ~ifelse(. == "", "A", .)),
+         Height_m = ifelse(Rank > 1,"-9999",Height_m) # change height field to only show the height measurement for lowest (tallest) rank
+         )
+```
+
+### Add disturbances
+
+Disturbance data was recorded in a separate table. The following lines of code re-oraganize the disturbance data and add them to the lpi dataset. The code dynamically adds a column to the data frame for each disturbance type present in the disturbance table, and populates the values in each column as TRUE (if that disturbance was present), FALSE (if that disturbance was not present), and Unknown (if that disturbance was present somewhere along the transect, but specific Tape_m were not recorded).
+
+```{r lpi-disturbances, message=F}
+lpi_disturbance <- AllEvents %>%
+  select(Location_ID, Event_ID, Unit_Code, Loc_Name, Std_Loc_Name, Start_Date, Year) %>%
+  left_join(tbl_Disturbance, by = "Event_ID") %>% # join lpi disturbance data with events data
+  filter(!is.na(Disturbance) & Sample_Type == "LPI") %>%
+  select(-c(Event_ID, Location_ID, Disturb_ID, Notes)) %>%
+  mutate(across(c(LPI_start, LPI_end), ~ifelse(is.na(.), "-1111", .))) # convert all NAs to -1111 for LPI_start and LPI_end
+
+# create a list of all the disturbances in any lpi plot to later dynamically add them as columns
+disturbances <- unique(lpi_disturbance$Disturbance)
+
+lpi <- lpi_disturbance %>%
+  group_by(Unit_Code, Loc_Name, Std_Loc_Name, Start_Date, Year) %>%
+  mutate(disturbance_id = row_number()) %>%
+  pivot_wider(names_from = disturbance_id, # one row for each plot/year combo
+              values_from = c(Disturbance, LPI_start, LPI_end),
+              names_glue = "{.value}{disturbance_id}") %>%
+  mutate(across(starts_with("LPI_start"), as.numeric),
+         across(starts_with("LPI_end"), as.numeric)) %>%
+  select(-Circ_Quad) %>%
+  right_join(lpi, # add the disturbance data to the lpi data
+            by = c("Unit_Code", "Std_Loc_Name", "Year", "Loc_Name", "Start_Date")) %>%
+  mutate(Tape_m = as.numeric(Tape_m))
+
+# Get the names of disturbance columns dynamically to use in the for loop
+disturbance_cols <- grep("^Disturbance", names(lpi), value = TRUE)
+
+# creates a new column for each disturbance that we want to retain in the final data frame
+lpi[disturbances] <- FALSE
+
+# Populate TRUE/FALSE values using a nested loop for each of the disturbance column
+# TRUE represents that the given disturbance has been confirmed at that specific sampling point
+# FALSE indicates that there has been no disturbance 
+# Unknown indicates that the disturbance has been confirmed at the plot/year, but unknown which sampling points were affected by the disturbance
+for (col in disturbance_cols) {
+  # Extract the number from the disturbance column name
+  num <- gsub("Disturbance", "", col)
+  
+  # Get the corresponding LPI_start and LPI_end columns
+  lpi_start_col <- paste0("LPI_start", num)
+  lpi_end_col <- paste0("LPI_end", num)
+  
+  for (d in disturbances) {
+    # Identify rows where LPI_start or LPI_end is -1111 *for this specific disturbance*
+    unknown <- (lpi[[col]] == d) & 
+      (lpi[[lpi_start_col]] == -1111 | lpi[[lpi_end_col]] == -1111)
+    
+    # Identify rows that meet the original disturbance condition
+    true <- (lpi[[col]] == d &
+               round(lpi$Tape_m, 4) >= round(lpi[[lpi_start_col]], 4) &
+               round(lpi$Tape_m, 4) <= round(lpi[[lpi_end_col]], 4))
+    
+    # Update only the correct disturbance column
+    lpi[[d]][unknown] <- "Unknown"
+    lpi[[d]][!unknown & true] <- TRUE
+    lpi[[d]][!unknown & !true & is.na(lpi_disturbance[[d]])] <- FALSE
+  }
+}
+```
+
+### Generate flat file
+The following lines of code add in any final changes to the lpi data frame and
+create the flatfile. We add in Nativity, Scientific Name, TSN, Primary &
+Secondary Lifeform from mtbl_Plants (based on the Accepted Codes) and update
+any Nativity changes from the Post Field Edits spreadsheet, and select the
+final columns for the final lpi flatfile. 
+
+We also reformat the final file:
+
+- convert field names to camel case
+- add park name (unitName) based on the parkCode
+- reformat of any columns that contain the word "Date"
+- replace all "N/A" character values with NA
+- add rank code description column for NAs
+- add height code description column for NAs
+- separate sci names from verbatim ID
+- add taxon rank
+- rename and reorder fields
+
+The flatfile will be exported at the end of this Rmarkdown.
+
+```{r lpi-flat-file}
+LinePointIntercept <- lpi %>% 
+  left_join(mtbl_Plants %>% select(Veg_Code, Nativity, Scientific_Name, TSN,
+                                   Primary_Lifeform, Secondary_Lifeform), 
+            by = c("Accepted_Code" = "Veg_Code")) %>%
+  mutate(Nativity = case_when(
+    Nativity %in% c("N/A", NA) & !Accepted_Code %in% c("NP", "MD") & VegSub != "Substrate" ~ "Unknown",
+    !is.na(UpdatedNativity) ~ UpdatedNativity,
+    .default = Nativity)
+    ) %>%
+  select(-UpdatedNativity) %>%
+  left_join(mtbl_Substrate %>% select(Veg_Code, Common_Name),
+            by = c("VegCode" = "Veg_Code")) %>%
+  mutate(
+    Scientific_Name = ifelse(VegSub == "Substrate", Common_Name, Scientific_Name),
+    Secondary_Lifeform = if_else(Secondary_Lifeform=="", NA_character_, Secondary_Lifeform),
+    TSN = if_else(is.na(TSN), -9999, TSN)
+    ) %>%
+  select(-Common_Name) %>% 
+  ungroup %>%
+  select(Unit_Code, Std_Loc_Name, Start_Date, Tape_m, Tape_m_Flag, Rank,
+         Rank_Flag, Height_m, Height_m_Flag, Accepted_Code,
+         Accepted_Code_Flag = VegCode_Flag, Scientific_Name, Primary_Lifeform,
+         Secondary_Lifeform, Nativity, TSN, Canopy_Layer, all_of(disturbances)) %>%
+  mutate(across(where(is.character), ~ifelse(. %in% c("NA", "N/A"), NA, .)),
+         across(c(Secondary_Lifeform, Primary_Lifeform),
+                ~ifelse(Accepted_Code == "NP", NA_character_, .)))
+
+# change column names to camel case
+colnames(LinePointIntercept) <- to_camel_case_except_ID(colnames(LinePointIntercept))
+
+LinePointIntercept %<>%
+  as_tibble %>%
+  rename(locationID = stdLocName,
+       eventDate = startDate,
+       tapeDistanceInMeters = tapeM,
+       tapeDistanceInMetersFlag = tapeMFlag,
+       heightInMeters = heightM,
+       heightInMetersFlag = heightMFlag,
+       ORV = orv) %>%
+  mutate(
+    # add column for unit name
+    unitName = case_when(
+      unitCode == "PECO" ~ "Pecos National Historical Park",
+      unitCode == "CAVO" ~ "Capulin Volcano National Monument",
+      unitCode == "FOUN" ~ "Fort Union National Monument",
+      unitCode == "SAND" ~ "Sand Creek Massacre National Historic Site",
+      unitCode == "BEOL" ~ "Bent's Old Fort National Historic Site",
+      unitCode == "WABA" ~ "Washita Battlefield National Historic Site",
+      unitCode == "LAMR" ~ "Lake Meredith National Recreation Area",
+      unitCode == "FOLS" ~ "Fort Larned National Historic Site",
+      unitCode == "LYJO" ~ "Lyndon B. Johnson National Historical Park",
+      unitCode == "CHIC" ~ "Chickasaw National Recreation Area"),
+    # make sure dates are formatted consistently
+    eventDate = ymd(eventDate),
+    # add rank code description column for NAs
+    rankCodeDescription = if_else(
+      rank == -9999, "Values are not applicable", NA
+      ),
+    # add height code description column for NAs
+    heightCodeDescription = case_when(
+      heightInMeters == -1111 ~ "Data were not collected",
+      heightInMeters == -9999 ~ "Values are not applicable",
+      .default = NA),
+    # separate sci names from verbatim ID
+    verbatimIdentification = scientificName,
+    scientificName = if_else(TSN != -9999, scientificName, NA),
+    across(where(is.logical), as.character),
+    # change N/A to NA
+    across(where(is.character), ~ifelse(. == "N/A", NA, .))
+    ) %>%
+  # add taxon rank
+  get_taxon_rank("scientificName") %>%
+  # sort columns and rows
+  relocate(unitName, .after = unitCode) %>%
+  relocate(rankCodeDescription, .after = rank) %>%
+  relocate(heightCodeDescription, .after = heightInMeters) %>%
+  relocate(reEstabNail, .after = reEstab50P) %>%
+  relocate(other, .after = ORV) %>%
+  relocate(acceptedCodeFlag, .after = acceptedCodeFlag) %>%
+  relocate(TSN, taxonRank, .after = scientificName) %>%
+  arrange(eventDate, locationID, tapeDistanceInMeters)
+```
+
+## Circular quadrats
+This code joins numerous tables together to start the circular quadrats table. The Cover Metric Type is added based on the type of data recorded: Presence/Absence, Cover Class, or Percent Cover. 
+
+```{r start-circular-quadrat-table, message=F}
+quads <- AllEvents %>%
+  select(Location_ID, Event_ID, Unit_Code, Loc_Name, Std_Loc_Name, Start_Date, Year) %>%
+  left_join(tbl_Rapid_Point, by = "Event_ID") %>%
+  select(-c(Location_ID, Event_ID, Rapid_Point_ID)) %>%
+  arrange(Unit_Code, Loc_Name, Start_Date, Quad_Number) %>%
+  drop_na(Species_Code) %>%
+  mutate(
+    # update all blank Flag rows to be accepted (A)
+    across(c(Quad_Number_Flag, Species_Code_Flag, Percent_Cover_Flag), ~ifelse(. == "", "A", .)),
+    Cover_Class_Flag = ifelse(Cover_Class_Flag %in% c("", NA), "A", .),
+    # make NA values consistent where data was not collected
+    across(c(Cover_Class, Percent_Cover), ~ifelse(. %in% c("","NA","N/A"), NA, .)),
+    # column describing data type
+    Cover_Metric_Type = case_when(
+      is.na(Percent_Cover) & is.na(Cover_Class) ~ "Presence/Absence",
+      is.na(Percent_Cover) & !is.na(Cover_Class) ~ "Cover Class",
+      is.na(Cover_Class) & !is.na(Percent_Cover) ~ "Percent Cover",
+      .default = "")
+    )
+```
+
+### Add post-field edits
+
+The following code makes the necessary changes to the circular quadrats dataframe based on Merran's (protocol lead) Post Field Edits. In most cases, these are changes in VegCode field (often updating unknowns or lumping species that are commonly confused or often misidentified), and in other cases, these changes are updates to Nativity for genera that can be both native and non-native. VegCode changes are made now, and Nativity changes are stored in an additional column (called UpdatedNativity) to later add once the Nativity column is joined from mtbl_Plants. Any VegCode changes are reflected as AE[S] in the Flag column.
+
+```{r circular-quadrat-post-field-edits, message=F}
+# Join the edits for all plot locations to the circ quad data
+# Join by Year, Unit Code and VegCode, so the table will join to all plot locations with the respective year and unit and vegcode recorded in the field
+circ_quads <- quads %<>%
+  rename(VegCode = Species_Code, VegCode_Flag = Species_Code_Flag) %>%
+  left_join(allplots, by=c("Year", "Unit_Code", "VegCode")) %>%
+  mutate(VegCode_Flag = if_else(!is.na(Cert_Species_Code) & Cert_Species_Code != VegCode,
+                                "AE[S]", VegCode_Flag),
+         VegCode = if_else(!is.na(Cert_Species_Code), Cert_Species_Code, VegCode),
+         UpdatedNativity = if_else(!is.na(Nativity), Nativity, UpdatedNativity),
+         Canopy = case_when(Canopy == 1 ~ "Overhead",
+                            Canopy == 0 ~ "Rooted",
+                            .default = as.character(Canopy))
+         ) %>%
+  rename(Canopy_Layer = Canopy) %>%
+  select(-c(Cert_Species_Code, Nativity, Comments)) %>%
+  left_join(specificplots, # Join the edits for specific plot locations to the circ quad data
+            by = c("Year", "Unit_Code", "Loc_Name", "VegCode")) %>%
+  mutate(VegCode_Flag = if_else(!is.na(Cert_Species_Code) & Cert_Species_Code != VegCode,
+                                "AE[S]", VegCode_Flag),
+         VegCode = if_else(!is.na(Cert_Species_Code), Cert_Species_Code, VegCode),
+         UpdatedNativity = if_else(!is.na(Nativity), Nativity, UpdatedNativity)) %>%
+  select(-c(Cert_Species_Code, Nativity, Comments))
+```
+
+### Add disturbance events
+
+Disturbance data was recorded in a separate table. The following lines of code re-organize the disturbance data and add them to the circular quadrats dataset. The code dynamically adds a column to the data frame for each disturbance type present in the disturbance table, and populates the values in each column as TRUE (if that disturbance was present), FALSE (if that disturbance was not present), and Unknown (if that disturbance was present somewhere, but the specific quadrat number was not recorded).
+
+```{r circular-quadrat-disturbance, message=F}
+# isolate the circular quadrat disturbance data and remove unnecessary columns
+quad_disturbance <- AllEvents %>%
+  select(Location_ID, Event_ID, Unit_Code, Loc_Name, Std_Loc_Name, Start_Date, Year) %>%
+  left_join(tbl_Disturbance, by = "Event_ID") %>%
+  filter(!is.na(Disturbance) & Sample_Type == "CQ") %>%
+  select(-c(Event_ID, Location_ID, Disturb_ID, Notes, LPI_start, LPI_end))
+
+# generate a list of disturbances found in the circular quad data
+quad_disturbances <- unique(quad_disturbance$Disturbance)
+
+# modify the quad disturbance table to only have one row for each quadrat/year combo. Thus if there are more than one disturbance for a given quadrat/year, the data will be converted to have a column for each disturbance 
+quad_disturbance %<>%
+  group_by(Unit_Code, Loc_Name, Std_Loc_Name, Start_Date, Year, Circ_Quad) %>%
+  mutate(disturbance_id = row_number()) %>%
+  pivot_wider(
+    names_from = disturbance_id,
+    values_from = c(Disturbance),
+    names_glue = "{.value}{disturbance_id}") %>%
+  rename(Quad_Number = Circ_Quad)
+
+# Get the names of disturbance columns dynamically 
+disturbance_cols <- grep("^Disturbance", names(quad_disturbance), value = TRUE)
+
+#isolate the disturbance values where the quadrat number is known and join them to quad data
+df1 <- left_join(quad_disturbance %>% filter(Quad_Number != -1111),circ_quads,
+                 by =c("Unit_Code","Std_Loc_Name","Year","Loc_Name","Start_Date","Quad_Number")) 
+# creates a new column for each disturbance
+df1[quad_disturbances] <- FALSE
+
+# Loop through each disturbance column and set TRUE where the disturbance matches
+for (col in disturbance_cols) {
+  for (d in quad_disturbances) {
+    # Directly replace matching values with TRUE, leave FALSE for others
+    df1[[d]] <- replace(df1[[d]], df1[[col]] == d, TRUE)
+  }
+}
+
+# convert to character to allow for rbind  
+df1 <- df1 %>%
+  mutate(across(all_of(quad_disturbances), as.character))
+
+#isolate the -1111 disturbance values and join them to the quad data 
+# (all of the quadrats for that plot/year combo will show up and will be marked as 'Unknown')
+df2 <- left_join(quad_disturbance %>% filter(Quad_Number == -1111),circ_quads,
+                 by =c("Unit_Code","Std_Loc_Name","Year","Loc_Name","Start_Date")) %>%
+  #filter(Std_Loc_Name != "BEOL_RESTN-02") %>% #TAKE THIS OUT LATER! (this year wasn't sampled)
+  mutate(Quad_Number.x = Quad_Number.y) %>%
+  select(-Quad_Number.y) %>%
+  rename(Quad_Number = Quad_Number.x)
+
+# creates a new column for each disturbance
+df2[quad_disturbances] <- FALSE
+
+# Loop through each disturbance column and set Unknown where the disturbance matches
+for (col in disturbance_cols) {
+  for (d in quad_disturbances) {
+    # Directly replace matching values with Unknown, leave FALSE for others
+    df2[[d]] <- replace(df2[[d]], df2[[col]] == d, "Unknown")
+  }
+}
+
+# convert to character to allow for rbind  
+df1 <- df1 %>%
+  mutate(across(all_of(quad_disturbances), as.character))
+df2 <- df2 %>%
+  mutate(across(all_of(quad_disturbances), as.character))
+
+combined <- bind_rows(df1, df2) %>%
+  group_by(Unit_Code, Std_Loc_Name, Start_Date, Year, VegCode, Quad_Number) %>%
+  summarise(
+    across(
+      all_of(quad_disturbances),
+      ~ {
+        vals <- as.character(.)
+        if ("Unknown" %in% vals) {
+          "Unknown"
+        } else if ("TRUE" %in% vals) {
+          "TRUE"
+        } else {
+          "FALSE"
+        }
+      },
+      .names = "{.col}"
+    ),
+    .groups = "drop"
+  )
+circ_quads2 <- left_join(circ_quads,combined)
+```
+
+### Miscellaneous edits
+
+Confirm that everything has a count of 1 (meaning that there are no duplicates among df1 and df2)
+
+```{r circular-quadrat-counts}
+count <- combined %>%
+  group_by(Unit_Code, Std_Loc_Name, Start_Date, Year, Quad_Number, VegCode) %>%
+  summarize(n = n())
+
+count %>% filter(n>1)
+```
+
+Convert synonyms to accepted names
+
+```{r circular-quadrat-synonyms, message=F}
+circ_quads3 <- left_join(circ_quads2, mtbl_Plants %>% select(Veg_Code, Accepted_Code),
+                         by = c("VegCode" = "Veg_Code")) %>%
+  mutate(Accepted_Code = ifelse(is.na(Accepted_Code), VegCode, Accepted_Code))
+```
+
+Add nativity
+
+```{r circular-quadrat-nativity}
+circ_quads4 <- circ_quads3 %>% 
+  left_join(mtbl_Plants %>% select(Veg_Code, Nativity),
+            by = c("Accepted_Code" = "Veg_Code")) %>%
+  mutate(Nativity = case_when(Nativity == "N/A" & !Accepted_Code %in% c("NP", "MD") ~ "Unknown",
+                              !is.na(UpdatedNativity) ~ UpdatedNativity,
+                              .default = Nativity)
+  ) %>%
+  select(-UpdatedNativity)
+```
+
+Standardize missing data values
+
+```{r circular-quadrat-missing-data-values, message=F}
+circ_quads4 %<>%
+  left_join(mtbl_Plants %>% select(Veg_Code, Primary_Lifeform, Secondary_Lifeform,
+                                   Scientific_Name, TSN),
+            by = c("Accepted_Code" = "Veg_Code")) %>%
+  mutate(Secondary_Lifeform = if_else(Secondary_Lifeform=="", NA_character_, Secondary_Lifeform),
+         TSN = if_else(is.na(TSN), -9999, TSN))
+```
+
+### Create flat file
+We also reformat the final file:
+
+- convert field names to camel case
+- add park name (unitName) based on the parkCode
+- reformat of any columns that contain the word "Date"
+- replace all "N/A" character values with NA
+- add column for cover class description
+- separate sci names from verbatim ID
+- add taxon rank
+- rename and reorder fields
+
+The flatfile will be exported at the end of this Rmarkdown.
+
+```{r circular-quadrat-flat-file}
+CircularQuadrats <- circ_quads4 %>%
+  rename(Accepted_Code_Flag = VegCode_Flag) %>%
+  select(Unit_Code, Std_Loc_Name, Start_Date, Quad_Number, Quad_Number_Flag,
+         Cover_Class, Cover_Class_Flag, Percent_Cover, Percent_Cover_Flag,
+         Accepted_Code, Accepted_Code_Flag, Scientific_Name, Primary_Lifeform,
+         Secondary_Lifeform, Nativity, TSN, Cover_Metric_Type, Canopy_Layer,
+         all_of(quad_disturbances)) %>%
+  mutate(across(where(is.character), ~ifelse(. %in% c("NA", "N/A"), NA, .)),
+         across(all_of(quad_disturbances), ~replace_na(.x, "FALSE")),
+         Nativity = na_if(Nativity, ""),
+         across(c(Primary_Lifeform, Secondary_Lifeform),
+                ~if_else(Accepted_Code == "NP", NA_character_, .))
+         )
+
+# column names to camel case
+colnames(CircularQuadrats) <- to_camel_case_except_ID(colnames(CircularQuadrats))
+
+CircularQuadrats %<>%
+  as_tibble %>%
+  mutate(
+    # add column for unit name
+    unitName = case_when(
+      unitCode == "PECO" ~ "Pecos National Historical Park",
+      unitCode == "CAVO" ~ "Capulin Volcano National Monument",
+      unitCode == "FOUN" ~ "Fort Union National Monument",
+      unitCode == "SAND" ~ "Sand Creek Massacre National Historic Site",
+      unitCode == "BEOL" ~ "Bent's Old Fort National Historic Site",
+      unitCode == "WABA" ~ "Washita Battlefield National Historic Site",
+      unitCode == "LAMR" ~ "Lake Meredith National Recreation Area",
+      unitCode == "FOLS" ~ "Fort Larned National Historic Site",
+      unitCode == "LYJO" ~ "Lyndon B. Johnson National Historical Park",
+      unitCode == "CHIC" ~ "Chickasaw National Recreation Area"),
+    # make sure dates are formatted consistently
+    startDate = ymd(startDate),
+    # add column for cover class description
+    coverClassDescription = case_when(
+      coverClass == 1 ~ "1-10%",
+      coverClass == 2 ~ "11-20%",
+      coverClass == 3 ~ "21-30%",
+      coverClass == 4 ~ "31-60%",
+      coverClass == 5 ~ "61-100%",
+      .default = NA),
+    # add code description column for -1111 in percentCover
+    percentCoverCodeDescription = if_else(percentCover == -1111, "Data were not collected", NA),
+    # to match column names
+    coverMetricType = str_to_camel(coverMetricType),
+    mowingSuit = as.character(mowingSuit),
+    verbatimIdentification = scientificName,
+    scientificName = if_else(TSN != -9999, scientificName, NA),
+    # missing flags to accepted
+    acceptedCodeFlag = if_else(is.na(acceptedCodeFlag), "AE(S)", acceptedCodeFlag)
+    ) %>%
+  # add taxon rank
+  get_taxon_rank("scientificName") %>%
+  rename(locationID = stdLocName,
+         eventDate = startDate) %>%
+  # rearrange columns and rows
+  relocate(unitName, .after = unitCode) %>%
+  relocate(verbatimIdentification, .after = scientificName) %>%
+  relocate(coverClassDescription, .after = coverClass) %>%
+  relocate(percentCoverCodeDescription, .after = percentCover) %>%
+  relocate(TSN, taxonRank, .after = scientificName) %>%
+  arrange(eventDate, locationID, quadNumber)
+```
+
+## Divided quadrats
+This code joins numerous tables together to start the divided quadrats table. Although this method was discontinued in 2016, this method was used at a few plots in 2022 to compare with the circular quadrat method. Note that the percent cover estimates are stored in two fields: Percent_Cover is a mix of numbers and characters whereas PercentCoverNum is numeric with characters converted to their standard numeric placeholder values. We use PercentCoverNum in the final files. 
+
+```{r start-divided-quadrat-table, message=F}
+divided_quads <- AllEvents %>%
+  select(Location_ID, Event_ID, Unit_Code, Loc_Name, Std_Loc_Name, Start_Date, Year) %>%
+  left_join(tbl_Divided_Quad, by = "Event_ID") %>%
+  drop_na(Div_Quad_ID) %>%
+  select(-c(Location_ID, Event_ID, Div_Quad_ID)) %>%
+  mutate(across(c(Tape_m_Flag, Veg_Code_Flag, Senesced_Flag, Percent_Cover_Flag),
+                ~ifelse(. %in% c("", NA), "A", .))) # update all blank flag rows to be accepted
+
+# Join the edits for all plot locations to the div quad data
+# Join by Year, Unit Code and VegCode, so the table will join to all plot locations with the respective year and unit and vegcode recorded in the field
+div_quads <- divided_quads %>%
+  rename(VegCode = Veg_Code) %>%
+  rename(VegCode_Flag = Veg_Code_Flag) %>%
+  left_join(., allplots,by=c("Year","Unit_Code","VegCode")) %>%
+  mutate(VegCode_Flag = if_else
+         (!is.na(Cert_Species_Code) & Cert_Species_Code != VegCode, "AE[S]", VegCode_Flag)) %>%
+  mutate(VegCode = if_else(!is.na(Cert_Species_Code), Cert_Species_Code, VegCode)) %>%
+  mutate(UpdatedNativity = if_else(!is.na(Nativity), Nativity, UpdatedNativity)) %>%
+  select(-Cert_Species_Code,-Nativity,-Comments)
+```
+
+### Add post-field edits
+
+The following code makes the necessary changes to the divided quadrats dataframe based on Merran's (protocol lead) Post Field Edits. In most cases, these are changes in VegCode field (often updating unknowns or lumping species that are commonly confused or often misidentified), and in other cases, these changes are updates to Nativity for genera that can be both native and non-native. VegCode changes are made now, and Nativity changes are stored in an additional column (called UpdatedNativity) to later add once the Nativity column is joined from mtbl_Plants. Any VegCode changes are reflected as AE[S] in the Flag column.
+
+```{r divided-quadrat-post-field-edits, message=F}
+div_quads %<>%
+  left_join(specificplots, # Join the edits for specific plot locations to the div quad data
+            by = c("Year", "Unit_Code", "Loc_Name", "VegCode")) %>%
+  mutate(VegCode_Flag = if_else(!is.na(Cert_Species_Code) & Cert_Species_Code != VegCode,
+                                "AE[S]", VegCode_Flag),
+         VegCode = if_else(!is.na(Cert_Species_Code), Cert_Species_Code, VegCode),
+         UpdatedNativity = if_else(!is.na(Nativity), Nativity, UpdatedNativity)
+         ) %>%
+  select(-c(Cert_Species_Code, Nativity, Comments))
+```
+
+### Add disturbance events
+
+Disturbance data was recorded in a separate table. The following lines of code re-organize the disturbance data and add them to the circular quad dataset. The code dynamically adds a column to the data frame for each disturbance type present in the disturbance table, and populates the values in each column as TRUE (if that disturbance was present), FALSE (if that disturbance was not present), and Unknown (if that disturbance was present somewhere, but the specific quadrat number was not recorded).
+
+The below code may need to be updated once tbl_Disturbance is updated to incorporate disturbance values for divided quads. Currently the code is designed where there is an additional "DQ" value under the Sample_Type column, and where there will be an additional column called Div_Quad that specifies which divided quad the disturbance is in. However, if tbl_Disturbance is changed in another way, then this code will need to be updated accordingly.
+
+```{r divided-quadrat-disturbances, message=F}
+div_quad_disturbance <- AllEvents %>%
+  select(Location_ID, Event_ID, Unit_Code, Loc_Name, Std_Loc_Name, Start_Date, Year) %>%
+  left_join(tbl_Disturbance, by = "Event_ID") %>%
+  filter(!is.na(Disturbance) & Sample_Type == "DVQ") %>%
+  select(-c(Event_ID, Location_ID, Disturb_ID, Notes, LPI_start, LPI_end)) %>%
+  rename(Tape_m = DivQuad_m)
+
+# generate a list of disturbances found in the divided quad data
+div_quad_disturbances <- unique(div_quad_disturbance$Disturbance)
+
+# modify the quad disturbance table to only have one row for each quadrat/year combo. Thus if there are more than one disturbance for a given quadrat/year, the data will be converted to have a column for each disturbance 
+div_quad_disturbance %<>%
+  group_by(Unit_Code, Loc_Name, Std_Loc_Name, Start_Date, Year, Tape_m) %>%
+  mutate(disturbance_id = row_number()) %>%
+  pivot_wider(
+    names_from = disturbance_id,
+    values_from = c(Disturbance),
+    names_glue = "{.value}{disturbance_id}")
+
+# Get the names of disturbance columns dynamically 
+disturbance_cols <- grep("^Disturbance", names(div_quad_disturbance), value = TRUE)
+
+#isolate the disturbance values where the quadrat number is known and join them to quad data
+df1 <- left_join(div_quad_disturbance, div_quads,
+                 by =c("Unit_Code", "Std_Loc_Name", "Year", "Loc_Name", "Start_Date", "Tape_m")) 
+# creates a new column for each disturbance
+df1[div_quad_disturbances] <- FALSE
+
+# Loop through each disturbance column and set TRUE where the disturbance matches
+for (col in disturbance_cols) {
+  for (d in div_quad_disturbances) {
+    # Directly replace matching values with TRUE, leave FALSE for others
+    df1[[d]] <- replace(df1[[d]], df1[[col]] == d, TRUE)
+  }
+}
+
+# convert to character to allow for rbind  
+df1 %<>%
+  as_tibble %>%
+  mutate(across(all_of(div_quad_disturbances), as.character))
+
+#isolate the -1111 disturbance values and join them to the quad data 
+# (all of the quadrats for that plot/year combo will show up and will be marked as 'Unknown')
+df2 <- left_join(div_quad_disturbance, div_quads,
+                 by = c("Unit_Code", "Std_Loc_Name", "Year", "Loc_Name", "Start_Date"))
+
+# creates a new column for each disturbance
+df2[div_quad_disturbances] <- FALSE
+
+# Loop through each disturbance column and set Unknown where the disturbance matches
+for (col in disturbance_cols) {
+  for (d in div_quad_disturbances) {
+    # Directly replace matching values with Unknown, leave FALSE for others
+    df2[[d]] <- replace(df2[[d]], df2[[col]] == d, "Unknown")
+  }
+}
+
+# convert to character to allow for rbind  
+df1 %<>%
+  as_tibble %>%
+  mutate(across(all_of(div_quad_disturbances), as.character))
+df2 %<>%
+  as_tibble %>%
+  mutate(across(all_of(div_quad_disturbances), as.character))
+
+combined <- bind_rows(df1, df2) %>%
+  group_by(Unit_Code, Std_Loc_Name, Start_Date, Year, VegCode, Tape_m) %>%
+  summarise(
+    across(
+      all_of(div_quad_disturbances),
+      ~ {
+        vals <- as.character(.)
+        if ("Unknown" %in% vals) {
+          "Unknown"
+        } else if ("TRUE" %in% vals) {
+          "TRUE"
+        } else {
+          "FALSE"
+        }
+      },
+      .names = "{.col}"
+    ),
+    .groups = "drop"
+  )
+div_quads2 <- left_join(div_quads, combined)
+```
+
+### Miscellaneous edits
+
+Confirm that everything has a count of 1 (meaning that there are no duplicates among df1 and df2)
+
+```{r divided-quadrat-counts}
+count <- combined %>%
+  group_by(Unit_Code, Std_Loc_Name, Start_Date, Year, Tape_m, VegCode) %>%
+  summarize(n = n())
+```
+
+Convert synonyms to accepted names
+
+```{r divided-quadat-synonyms, message=F}
+div_quads3 <- left_join(div_quads2, mtbl_Plants %>% select(Veg_Code, Accepted_Code),
+                        by = c("VegCode" = "Veg_Code")) %>%
+  mutate(Accepted_Code = ifelse(is.na(Accepted_Code), VegCode, Accepted_Code))
+```
+
+Add nativity
+
+```{r divided-quadrat-nativity}
+div_quads4 <- div_quads3 %>% 
+  left_join(mtbl_Plants %>% select(Veg_Code, Nativity),
+            by = c("Accepted_Code" = "Veg_Code")) %>%
+  mutate(Nativity = case_when(Nativity == "N/A" & !(Accepted_Code %in% c("NP", "MD")) ~ "Unknown",
+                              !is.na(UpdatedNativity) ~ UpdatedNativity,
+                              .default = Nativity
+                              )) %>%
+  select(-UpdatedNativity)
+```
+
+Standardize missing values
+
+```{r divided-quadrat-missing-values, message=F}
+div_quads4 %<>%
+  left_join(mtbl_Plants %>% select(Veg_Code, Primary_Lifeform, Secondary_Lifeform,
+                                    Scientific_Name, TSN),
+            by = c("Accepted_Code" = "Veg_Code")) %>%
+  mutate(Secondary_Lifeform = if_else(Secondary_Lifeform == "", NA_character_, Secondary_Lifeform),
+         TSN = if_else(is.na(TSN), -9999, TSN))
+```
+
+Add scientific names for substrates
+
+```{r divided-quadrat-substrate-names, message=F}
+div_quads5 <- div_quads4 %>%
+  left_join(mtbl_Substrate %>% select(Veg_Code, Scientific_Name), 
+            by = c("Accepted_Code" = "Veg_Code")) 
+
+div_quads6 <- div_quads5 %>%
+  mutate(Scientific_Name.x = if_else(is.na(Scientific_Name.x), 
+                                     Scientific_Name.y, Scientific_Name.x)) %>%
+  select(-Scientific_Name.y) %>%
+  rename(Scientific_Name = Scientific_Name.x)
+```
+
+### Create flat file
+We also reformat the final file:
+
+- convert field names to camel case
+- add park name (unitName) based on the parkCode
+- reformat of any columns that contain the word "Date"
+- replace all "N/A" character values with NA
+- separate sci names from verbatim ID
+- add taxon rank
+- rename and reorder fields
+
+The flatfile will be exported at the end of this Rmarkdown.
+```{r divided-quadrat-flat-file}
+DividedQuadrats <- div_quads6 %>%
+  select(Unit_Code, Std_Loc_Name, Start_Date, Tape_m, Tape_m_Flag, Nest_Type,
+         Nest_Size, PercentCoverNum, Percent_Cover_Flag, Accepted_Code,
+         Accepted_Code_Flag = VegCode_Flag, Senesced,Senesced_Flag,
+         Scientific_Name, Primary_Lifeform, Secondary_Lifeform, Nativity, TSN,
+         all_of(div_quad_disturbances)) %>%
+  rename(Percent_Cover = PercentCoverNum) %>%
+  mutate(across(where(is.character), ~ifelse(. %in% c("NA", "N/A"), NA, .)),
+         across(all_of(div_quad_disturbances), ~replace_na(.x, "FALSE")),
+         Nativity = na_if(Nativity, ""),
+         across(c(Primary_Lifeform, Secondary_Lifeform),
+                ~if_else(Accepted_Code == "NP", NA_character_, .)))
+
+# column names to camel case
+colnames(DividedQuadrats) <- to_camel_case_except_ID(colnames(DividedQuadrats))
+
+# final formatting
+DividedQuadrats %<>%
+  as_tibble %>%
+  mutate(
+    # add column for unit name
+    unitName = case_when(
+      unitCode == "PECO" ~ "Pecos National Historical Park",
+      unitCode == "CAVO" ~ "Capulin Volcano National Monument",
+      unitCode == "FOUN" ~ "Fort Union National Monument",
+      unitCode == "SAND" ~ "Sand Creek Massacre National Historic Site",
+      unitCode == "BEOL" ~ "Bent's Old Fort National Historic Site",
+      unitCode == "WABA" ~ "Washita Battlefield National Historic Site",
+      unitCode == "LAMR" ~ "Lake Meredith National Recreation Area",
+      unitCode == "FOLS" ~ "Fort Larned National Historic Site",
+      unitCode == "LYJO" ~ "Lyndon B. Johnson National Historical Park",
+      unitCode == "CHIC" ~ "Chickasaw National Recreation Area"),
+    # event date to date format
+    startDate = ymd(startDate),
+    # change N/A to NA
+    across(where(is.character), ~ifelse(. == "N/A", NA, .)),
+    verbatimIdentification = scientificName,
+    scientificName = if_else(TSN != -9999, scientificName, NA),
+    # missing flags to accepted
+    acceptedCodeFlag = if_else(is.na(acceptedCodeFlag), "AE(S)", acceptedCodeFlag),
+    # add code description column for -1111 and -9999 in percentCover
+    percentCoverCodeDescription = case_when(
+      percentCover == -1111 ~ "Data were not collected",
+      percentCover == -9999 ~ "Values are not applicable",
+      .default = NA),
+    ) %>%
+  # add taxon rank
+  get_taxon_rank("scientificName") %>%
+  rename(locationID = stdLocName,
+         eventDate = startDate) %>%
+  # rearrange columns and rows
+  relocate(unitName, .after = unitCode) %>%
+  relocate(verbatimIdentification, .after = scientificName) %>%
+  relocate(percentCoverCodeDescription, .after = percentCover) %>%
+  relocate(TSN, taxonRank, .after = scientificName) %>%
+  arrange(eventDate, locationID, tapeM)
+
+```
+
+## Canopy closure
+
+```{r canopy-closure, message=F}
+CanopyClosure <- AllEvents %>%
+  select(Location_ID, Event_ID, Unit_Code, Std_Loc_Name, Start_Date) %>%
+  left_join(tbl_Densiometer, by = "Event_ID") %>%
+  drop_na(Dense_ID) %>%
+  select(-c(Location_ID, Event_ID, Dense_ID)) %>%
+  mutate(across(c(Tape_m_Flag, Direction_Flag, Count_Flag),
+                ~ifelse(. %in% c("", NA), "A", .))) %>%
+  select(Unit_Code, Std_Loc_Name, Start_Date, Tape_m, Tape_m_Flag, Direction,
+         Direction_Flag, Count, Count_Flag)
+
+colnames(CanopyClosure) <- to_camel_case_except_ID(colnames(CanopyClosure))
+
+CanopyClosure %<>%
+  as_tibble %>%
+  mutate(
+    # add column for unit name
+    unitName = case_when(
+      unitCode == "PECO" ~ "Pecos National Historical Park",
+      unitCode == "CAVO" ~ "Capulin Volcano National Monument",
+      unitCode == "FOUN" ~ "Fort Union National Monument",
+      unitCode == "SAND" ~ "Sand Creek Massacre National Historic Site",
+      unitCode == "BEOL" ~ "Bent's Old Fort National Historic Site",
+      unitCode == "WABA" ~ "Washita Battlefield National Historic Site",
+      unitCode == "LAMR" ~ "Lake Meredith National Recreation Area",
+      unitCode == "FOLS" ~ "Fort Larned National Historic Site",
+      unitCode == "LYJO" ~ "Lyndon B. Johnson National Historical Park",
+      unitCode == "CHIC" ~ "Chickasaw National Recreation Area"),
+    # event date to date format
+    startDate = ymd(startDate),
+    # add count flag description column
+    countCodeDescription = if_else(count == -1111, "Data were not collected", NA),
+    # change N/A to NA
+    across(where(is.character), ~ifelse(. == "N/A", NA, .))
+    ) %>%
+  rename(locationID = stdLocName,
+         eventDate = startDate,
+         tapeDistanceInMeters = tapeM,
+         tapeDistanceInMetersFlag = tapeMFlag) %>%
+  # rearrange columns and rows
+  relocate(unitName, .after = unitCode) %>%
+  relocate(countCodeDescription, .after = count) %>%
+  arrange(eventDate, locationID, tapeDistanceInMeters,
+          match(direction, c("North", "East", "South", "West")))
+```
+
+## Fire events
+
+```{r fire-events, message=F}
+FireEvents <- xref_Fire_Locations %>%
+  left_join(tbl_Locations %>% select(Location_ID, Unit_Code, Loc_Name, Std_Loc_Name),
+            by="Location_ID") %>%
+  left_join(tbl_Fire_History) %>%
+  mutate(Fire_Date = as.Date(Fire_Date, format="%m/%d/%Y"),
+         Year= year(Fire_Date)) %>%
+  select(Unit_Code, Std_Loc_Name, Fire_Date, Fire_Type, Fire_Name)
+
+colnames(FireEvents) <- to_camel_case_except_ID(colnames(FireEvents))
+
+FireEvents %<>%
+  as_tibble %>%
+  mutate(
+    # add column for unit name
+    unitName = case_when(
+      unitCode == "PECO" ~ "Pecos National Historical Park",
+      unitCode == "CAVO" ~ "Capulin Volcano National Monument",
+      unitCode == "FOUN" ~ "Fort Union National Monument",
+      unitCode == "SAND" ~ "Sand Creek Massacre National Historic Site",
+      unitCode == "BEOL" ~ "Bent's Old Fort National Historic Site",
+      unitCode == "WABA" ~ "Washita Battlefield National Historic Site",
+      unitCode == "LAMR" ~ "Lake Meredith National Recreation Area",
+      unitCode == "FOLS" ~ "Fort Larned National Historic Site",
+      unitCode == "LYJO" ~ "Lyndon B. Johnson National Historical Park",
+      unitCode == "CHIC" ~ "Chickasaw National Recreation Area"),
+    # add type column
+    type = "Event",
+    # add basis of record column
+    basisOfRecord = "Event",
+    # fire date to date format
+    fireDate = ymd(fireDate),
+    # change N/A to NA
+    across(where(is.character), ~ifelse(. == "N/A", NA, .))
+    ) %>%
+  rename(locationID = stdLocName) %>%
+  arrange(fireDate, locationID)
+```
+
+## Plot visits
+```{r plot-visits, message=F}
+PlotVisits <- tbl_Locations %>% 
+  select(Location_ID, Unit_Code, Std_Loc_Name, Vegetation_Type, Stratification,
+         Rotation_Status, Loc_Type) %>%
+  filter(Rotation_Status %in% c("Active", "Intermittent")) %>%
+  left_join(tbl_Events %>% select(Location_ID, Event_ID, Start_Date, Certified,
+                                  Data_Ownership), by = "Location_ID") %>%
+  filter(Data_Ownership == "SOPN"
+         & Loc_Type != "Restoration") %>%
+  mutate(Start_Date = as.Date(Start_Date, format="%m/%d/%Y"),
+         Year = year(Start_Date)) %>%
+  filter(Year %in% start_year:end_year
+         & (Certified == "1" | Year == 2026)) %>%
+  left_join(tbl_Unit_Codes %>% select(Unit_Code,Unit_Full_Name))%>%
+  select(Unit_Code, Unit_Full_Name, Std_Loc_Name, Start_Date, Stratification,
+         Vegetation_Type)
+
+colnames(PlotVisits) <- to_camel_case_except_ID(colnames(PlotVisits))
+
+PlotVisits %<>%
+  as_tibble %>%
+  mutate(
+    # add type column
+    type = "Event",
+    # add basis of record column
+    basisOfRecord = "Event",
+    # event date to date format
+    startDate = ymd(startDate),
+    # change N/A to NA
+    across(where(is.character), ~ifelse(. == "N/A", NA, .)),
+    # add "." to unit name
+    unitFullName = ifelse(unitFullName == "Lyndon B Johnson National Historical Park", "Lyndon B. Johnson National Historical Park", unitFullName)
+    ) %>%
+  rename(locationID = stdLocName,
+         eventDate = startDate,
+         unitName = unitFullName) %>%
+  arrange(eventDate, locationID)
+```
+
+## Plant species
+Generate plant species list from the line-point intercept, circular quadrat, and divided quadrat data.
+
+```{r plant-species, message=F}
+PlantSpecies <- lpi %>%
+  ungroup() %>%
+  select(Accepted_Code) %>%
+  rbind(circ_quads4 %>% 
+          select(Accepted_Code)) %>%
+  rbind(div_quads6 %>% 
+          select(Accepted_Code)) %>%
+  left_join(mtbl_Plants %>% select(Veg_Code, Scientific_Name, Common_Name, TSN, Authority, 
+                                   Family, Common_Name, Primary_Lifeform, 
+                                   Secondary_Lifeform, Nativity, Duration),  
+            by = c("Accepted_Code" = "Veg_Code")) %>%
+  select(Accepted_Code, Scientific_Name, Common_Name, TSN, Authority, Family,
+         Primary_Lifeform, Secondary_Lifeform, Nativity, Duration) %>%
+  filter(!is.na(Scientific_Name)) %>% # remove substrates, unknowns, other codes not in mtbl_Plants
+  distinct
+
+colnames(PlantSpecies) <- to_camel_case_except_ID(colnames(PlantSpecies))
+
+PlantSpecies %<>%
+  mutate(
+    # add type column
+    type = "Taxon",
+    # add basis of record column
+    basisOfRecord = "Taxon",
+    # replace N/A with NA
+    across(where(is.character), ~ifelse(. == "N/A", NA, .)),
+    # separate verbatim ID from sci names
+    verbatimIdentification = scientificName,
+    scientificName = if_else(TSN != -9999, scientificName, NA)
+    ) %>%
+  # add taxon rank
+  get_taxon_rank("scientificName") %>%
+  relocate(verbatimIdentification, .after = acceptedCode) %>%
+  relocate(TSN, taxonRank, .after = scientificName)
+```
+
+## Plot locations
+
+```{r plot-locations, message=F}
+PlotLocations <- tbl_Locations %>%
+  left_join(tbl_Unit_Codes %>% select(Unit_Code, Unit_Full_Name)) %>%
+  select(Unit_Code, Unit_Full_Name, Std_Loc_Name, lon_0P = X_Coord_0P, lat_0P = Y_Coord_0P, lon_50P = X_Coord_50P, lat_50P = Y_Coord_50P, Coord_Accuracy, Datum, UTM_Zone) %>%
+  pivot_longer(cols = lon_0P:lat_50P, 
+               names_to = c('.value', 'Monument_Location'), 
+               names_sep = "_"
+  ) %>%
+  mutate(Monument_Location = ifelse(Monument_Location == '0P', '0P - Start', '50P - End'))
+
+utm13 <- PlotLocations %>%
+  subset(UTM_Zone == 13) %>%
+  drop_na %>%
+  st_as_sf(coords = c('lon', 'lat'), crs = '+proj=utm +zone=13 +datum=NAD83 +units=m') %>%
+  st_transform(crs = 4326)
+utm13 <- cbind(st_drop_geometry(utm13), st_coordinates(utm13)) %>%
+  rename(lon = X, lat = Y)
+utm14 <- PlotLocations %>%
+  subset(UTM_Zone == 14) %>%
+  drop_na %>%
+  st_as_sf(coords = c('lon', 'lat'), crs = '+proj=utm +zone=14 +datum=NAD83 +units=m') %>%
+  st_transform(crs = 4326)
+utm14 <- cbind(st_drop_geometry(utm14), st_coordinates(utm14)) %>%
+  rename(lon = X, lat = Y)
+
+PlotLocations <-
+  rbind(utm13, utm14) %>%
+  rbind(subset(PlotLocations, is.na(lon) | is.na(lat))) %>%
+  select(-UTM_Zone) %>%
+  rename(Decimal_Latitude = lat, Decimal_Longitude = lon, Coordinate_Accuracy = Coord_Accuracy) %>%
+  arrange(Unit_Code, Std_Loc_Name) %>%
+  mutate(Datum = 'EPSG:4326')
+
+colnames(PlotLocations) <- to_camel_case_except_ID(colnames((PlotLocations)))
+
+PlotLocations %<>%
+  mutate(
+    # add type column
+    type = "Event",
+    # add basis of record column
+    basisOfRecord = "MachineObservation",
+    # add "." to unit name
+    unitFullName = ifelse(unitFullName == "Lyndon B Johnson National Historical Park", "Lyndon B. Johnson National Historical Park", unitFullName),
+    # replace N/A with NA
+    across(where(is.character), ~ifelse(. == "N/A", NA, .))
+    ) %>%
+  rename(locationID = stdLocName,
+         unitName = unitFullName)
+```
+
+# Redactions for public data package
+
+Redactions TBD. The SOPN protected species database is still in progress.
+
+```{r redactions-for-public}
+#| eval: !expr (package_version == "public")
+
+publicTables <- finalTables
+```
+
+# Write data package to file
+
+```{r list-of-tables}
+finalTables <- list(LinePointIntercept = LinePointIntercept,
+               CircularQuadrats = CircularQuadrats,
+               DividedQuadrats = DividedQuadrats,
+               CanopyClosure = CanopyClosure,
+               FireEvents = FireEvents,
+               PlotVisits = PlotVisits,
+               PlantSpecies = PlantSpecies,
+               PlotLocations = PlotLocations)
+```
+
+```{r write-data-package}
+if (package_version == "internal") {
+  for (i in seq_along(finalTables)) {
+    paste0(EXPORT_INTERNAL_DATAPACKAGE,
+           "SOPN_Grassland_",
+           names(finalTables)[[i]], ".csv") %>%
+      write_csv(finalTables[[i]], file = .)
+  }
+} else if (package_version == "public") {
+  for (i in seq_along(publicTables)) {
+    paste0(EXPORT_EXTERNAL_DATAPACKAGE,
+           "SOPN_Grassland_",
+           names(publicTables)[[i]], ".csv") %>%
+      write_csv(publicTables[[i]], file = .)
+  }
+}
+```

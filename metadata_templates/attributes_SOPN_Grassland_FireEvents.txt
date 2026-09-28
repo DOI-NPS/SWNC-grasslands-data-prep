@@ -1,0 +1,9 @@
+attributeName	attributeDefinition	class	unit	dateTimeFormatString	missingValueCode	missingValueCodeExplanation
+unitCode	National Park Service unit code	categorical				
+unitName	National Park Service unit name	character				
+locationID	Unique name for plot: unit code + plot name	character				
+fireDate	Date of prescribed burn or wildfire	Date		YYYY-MM-DD		
+fireType	Type of fire (wildfire or prescribed)	categorical				
+fireName	Name of wildfire or fire treatment event	character				
+type	The nature or genre of the resource.	categorical				
+basisOfRecord	The specific nature of the data record.	categorical				
