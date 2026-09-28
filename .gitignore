@@ -33,5 +33,5 @@
 
 # geographic coverage
 *geographic_coverage.txt
-.Rproj.user
+.Rproj.user/*
 .positai
