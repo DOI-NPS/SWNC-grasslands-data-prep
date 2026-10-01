@@ -218,7 +218,7 @@ lpi %<>%
 The tree cover (canopy) data are stored in a different table from the rest of the line-point intercept data. The code below joins numerous tables to generate the tree intercepts and then appends it to the lpi dataframe.
 
 ```{r lpi-tree-canopy, message=F}
-trees <- AllEvents %>%
+lpi <- AllEvents %>%
   select(Location_ID, Event_ID, Unit_Code, Loc_Name, Std_Loc_Name, Start_Date, Year) %>%
   left_join(tbl_Point_Line_Measure, by = "Event_ID") %>%
   left_join(tbl_Point_Line_Tree %>% select(-Notes), by = "Point_Line_ID") %>%
@@ -230,10 +230,8 @@ trees <- AllEvents %>%
   data.frame(., Rank = -9999, Canopy = 1, Dead = NA, Rank_Flag = "A",
              maxRank = NA, Canopy_Layer = "Tree", VegSub = "Vegetation") %>% 
   left_join(mtbl_Plants %>% select(Veg_Code, Nativity), by = c("VegCode" = "Veg_Code")) %>%
-  data.frame(., UpdatedNativity = NA) %>%
-  select(any_of(names(lpi)))
-
-lpi <- rbind(lpi,trees)
+  select(any_of(names(lpi))) %>%
+  bind_rows(lpi, .)
 ```
 
 ### Add edits to accepted code flag columns
@@ -338,14 +336,15 @@ We also reformat the final file:
 The flatfile will be exported at the end of this Rmarkdown.
 
 ```{r lpi-flat-file}
-LinePointIntercept <- lpi %>% 
+LinePointIntercept <- lpi %>%
   left_join(mtbl_Plants %>% select(Veg_Code, Nativity, Scientific_Name, TSN,
                                    Primary_Lifeform, Secondary_Lifeform), 
             by = c("Accepted_Code" = "Veg_Code")) %>%
-  mutate(Nativity = case_when(
-    Nativity %in% c("N/A", NA) & !Accepted_Code %in% c("NP", "MD") & VegSub != "Substrate" ~ "Unknown",
-    !is.na(UpdatedNativity) ~ UpdatedNativity,
-    .default = Nativity)
+  mutate(Nativity = ifelse(Nativity %in% c("N/A", NA) &
+                             !(Accepted_Code %in% c("NP", "MD")) &
+                             VegSub != "Substrate",
+                           "Unknown", Nativity),
+         Nativity = ifelse(!is.na(UpdatedNativity), UpdatedNativity, Nativity)
     ) %>%
   select(-UpdatedNativity) %>%
   left_join(mtbl_Substrate %>% select(Veg_Code, Common_Name),
@@ -595,9 +594,9 @@ Add nativity
 circ_quads4 <- circ_quads3 %>% 
   left_join(mtbl_Plants %>% select(Veg_Code, Nativity),
             by = c("Accepted_Code" = "Veg_Code")) %>%
-  mutate(Nativity = case_when(Nativity == "N/A" & !Accepted_Code %in% c("NP", "MD") ~ "Unknown",
-                              !is.na(UpdatedNativity) ~ UpdatedNativity,
-                              .default = Nativity)
+  mutate(Nativity = ifelse(Nativity == "N/A" & !Accepted_Code %in% c("NP", "MD"),
+                           "Unknown", Nativity),
+         Nativity = ifelse(!is.na(UpdatedNativity), UpdatedNativity, Nativity)
   ) %>%
   select(-UpdatedNativity)
 ```
@@ -852,10 +851,9 @@ Add nativity
 div_quads4 <- div_quads3 %>% 
   left_join(mtbl_Plants %>% select(Veg_Code, Nativity),
             by = c("Accepted_Code" = "Veg_Code")) %>%
-  mutate(Nativity = case_when(Nativity == "N/A" & !(Accepted_Code %in% c("NP", "MD")) ~ "Unknown",
-                              !is.na(UpdatedNativity) ~ UpdatedNativity,
-                              .default = Nativity
-                              )) %>%
+  mutate(Nativity = ifelse(Nativity == "N/A" & !(Accepted_Code %in% c("NP", "MD")),
+                           "Unknown", Nativity),
+         Nativity = ifelse(!is.na(UpdatedNativity), UpdatedNativity, Nativity)) %>%
   select(-UpdatedNativity)
 ```
 
@@ -1177,17 +1175,7 @@ PlotLocations %<>%
          unitName = unitFullName)
 ```
 
-# Redactions for public data package
-
-Redactions TBD. The SOPN protected species database is still in progress.
-
-```{r redactions-for-public}
-#| eval: !expr (package_version == "public")
-
-publicTables <- finalTables
-```
-
-# Write data package to file
+# Create set of export tables
 
 ```{r list-of-tables}
 finalTables <- list(LinePointIntercept = LinePointIntercept,
@@ -1199,6 +1187,18 @@ finalTables <- list(LinePointIntercept = LinePointIntercept,
                PlantSpecies = PlantSpecies,
                PlotLocations = PlotLocations)
 ```
+
+# Redactions for public data package
+
+Redactions TBD. The SOPN protected species database is still in progress.
+
+```{r redactions-for-public}
+#| eval: !expr (package_version == "public")
+
+publicTables <- finalTables
+```
+
+# Write data package to file
 
 ```{r write-data-package}
 if (package_version == "internal") {
